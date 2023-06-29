@@ -19,7 +19,7 @@
 	</prerequisites>
 
 	<properties>
-		<flexmark-version>0.64.6</flexmark-version>
+		<flexmark-version>0.64.8</flexmark-version>
 		<plantuml-lib-version>1.2023.9</plantuml-lib-version>
 		<java-version>11</java-version>
 
@@ -38,13 +38,66 @@
 			<version>${plantuml-lib-version}</version>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-all</artifactId>
 			<version>${flexmark-version}</version>
+		</dependency>-->
+
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark</artifactId>
+			<version>${flexmark-version}</version>
 		</dependency>
-
-
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-util</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-util-ast</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<!--<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-plantuml</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>-->
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-plantuml</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-attributes</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-tables</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-gfm-strikethrough</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-autolink</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -57,7 +110,7 @@
 	<build>
 		<plugins>
 
-			<plugin>
+			<!--<plugin>
 				<groupId>com.googlecode.maven-download-plugin</groupId>
 				<artifactId>download-maven-plugin</artifactId>
 				<version>1.6.8</version>
@@ -79,9 +132,9 @@
 					</execution>
 
 				</executions>
-			</plugin>
+			</plugin>-->
 
-			<plugin>
+			<!--<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.0.0</version>
@@ -141,7 +194,7 @@
 					</execution>
 
 				</executions>
-			</plugin>
+			</plugin>-->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -156,7 +209,7 @@
 				</dependencies>
 			</plugin>
 
-			<plugin>
+			<!--<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
@@ -168,11 +221,10 @@
 				</executions>
 				<configuration>
 					<descriptorRefs>
-						<!-- Collect all dependencies in one "fat" jar -->
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 				</configuration>
-			</plugin>
+			</plugin>-->
 
 		</plugins>
 	</build>
