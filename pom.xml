@@ -219,6 +219,29 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>-->
+			
+			<plugin>
+				<groupId>org.jfrog.buildinfo</groupId>
+				<artifactId>artifactory-maven-plugin</artifactId>
+				<version>3.6.1</version>
+				<executions>
+					<execution>
+						<id>build-info</id>
+						<goals>
+							<goal>publish</goal>
+						</goals>
+						<configuration>
+							<publisher>
+								<contextUrl>${ARTIFACTORY_URL}</contextUrl>
+								<username>${ARTIFACTORY_USR}</username>
+								<password>dontellanyone</password>
+								<repoKey>${ARTIFACTORY_REPO}</repoKey>
+								<snapshotRepoKey>${ARTIFACTORY_REPO}</snapshotRepoKey>
+							</publisher>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
 		</plugins>
 	</build>
