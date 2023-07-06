@@ -234,9 +234,10 @@
 							<publisher>
 								<contextUrl>${ARTIFACTORY_URL}</contextUrl>
 								<username>${ARTIFACTORY_USR}</username>
-								<password>dontellanyone</password>
+								<password>${ARTIFACTORY_PW}</password>
 								<repoKey>${ARTIFACTORY_REPO}</repoKey>
 								<snapshotRepoKey>${ARTIFACTORY_REPO}</snapshotRepoKey>
+								<publishBuildInfo>false</publishBuildInfo>
 							</publisher>
 						</configuration>
 					</execution>
