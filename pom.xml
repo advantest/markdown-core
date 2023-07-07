@@ -237,7 +237,7 @@
 								<password>${ARTIFACTORY_PW}</password>
 								<repoKey>${ARTIFACTORY_REPO}</repoKey>
 								<snapshotRepoKey>${ARTIFACTORY_REPO}</snapshotRepoKey>
-								<publishBuildInfo>false</publishBuildInfo>
+								<publishBuildInfo>true</publishBuildInfo>
 							</publisher>
 						</configuration>
 					</execution>
