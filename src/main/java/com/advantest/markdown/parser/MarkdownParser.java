@@ -10,8 +10,6 @@
 package com.advantest.markdown.parser;
 
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
-import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
-import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.parser.Parser;
@@ -40,10 +38,10 @@ public class MarkdownParser {
         		TablesExtension.create(),
         		
         		// see https://github.com/vsch/flexmark-java/wiki/Extensions#gfm-strikethroughsubscript
-        		StrikethroughExtension.create(),
+        		//StrikethroughExtension.create(),
         		
         		// see https://github.com/vsch/flexmark-java/wiki/Extensions#autolink
-        		AutolinkExtension.create(),
+        		//AutolinkExtension.create(),
         		
         		// see https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
         		// needed e.g. for setting custom heading anchor IDs
