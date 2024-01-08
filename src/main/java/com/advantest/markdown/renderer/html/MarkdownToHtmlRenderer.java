@@ -15,7 +15,7 @@ import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 
-
+@Deprecated
 public class MarkdownToHtmlRenderer {
 	
 	private final MarkdownParser parser;

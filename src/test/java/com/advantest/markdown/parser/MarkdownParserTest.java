@@ -13,11 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.advantest.markdown.TestFileUtil;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.Heading;
@@ -41,17 +44,18 @@ import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
 public class MarkdownParserTest {
 	
-	private static String markdownSourceCode;
-	MarkdownParser parser;
+	private static File markdownSourceFile;
+	MarkdownParserAndHtmlRenderer parser;
 	
 	@BeforeAll
 	public static void setUpBeforeAll() throws Exception {
-		markdownSourceCode = TestFileUtil.readTextFromFile("src/test/resources/feature-overview.md");
+		String path = "src/test/resources/feature-overview.md";
+		markdownSourceFile = new File(path);
 	}
 	
 	@BeforeEach
 	public void setUp() {
-		parser = new MarkdownParser();
+		parser = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
@@ -61,7 +65,7 @@ public class MarkdownParserTest {
 	
 	@Test
 	public void parsing_common_elements() throws Exception {
-		Document markdownAstRootNode = parser.parseMarkdownCode(markdownSourceCode);
+		Document markdownAstRootNode = parser.parseMarkdown(markdownSourceFile);
 		
 		Node currentNode = markdownAstRootNode.getFirstChild();
 		

@@ -9,28 +9,31 @@
  */
 package com.advantest.markdown.renderer.html;
 
+import java.io.File;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.advantest.markdown.TestFileUtil;
+import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 
 
 public class MarkdownToHtmlRendererTest {
 	
-	private static String markdownSourceCode;
-	private MarkdownToHtmlRenderer renderer;
+	private static File markdownSourceFile;
+	private MarkdownParserAndHtmlRenderer renderer;
 	
 	@BeforeAll
 	public static void setUpBeforeAll() throws Exception {
-		markdownSourceCode = TestFileUtil.readTextFromFile("src/test/resources/feature-overview.md");
+		String path = "src/test/resources/feature-overview.md";
+		markdownSourceFile = new File(path);
 	}
 	
 	@BeforeEach
 	public void setUp() {
-		renderer = new MarkdownToHtmlRenderer();
+		renderer = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
@@ -39,8 +42,8 @@ public class MarkdownToHtmlRendererTest {
 	}
 	
 	@Test
-	public void rendering_common_elements() {
-		String htmlSourceCode = renderer.renderHtml(markdownSourceCode);
+	public void rendering_common_elements() throws Exception {
+		String htmlSourceCode = renderer.renderHtml(renderer.parseMarkdown(markdownSourceFile));
 		
 		Assertions.assertNotNull(htmlSourceCode);
 		Assertions.assertFalse(htmlSourceCode.isBlank());

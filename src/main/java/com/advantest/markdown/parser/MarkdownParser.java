@@ -24,6 +24,7 @@ import java.util.Arrays;
  * <a href="https://github.com/vsch/flexmark-java">Flexmark</a>
  * with a selection of extensions.
  */
+@Deprecated
 public class MarkdownParser {
 	
 	private final MutableDataSet options;
