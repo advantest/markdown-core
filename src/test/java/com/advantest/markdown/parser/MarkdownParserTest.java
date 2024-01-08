@@ -26,6 +26,7 @@ import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.ext.attributes.AttributesNode;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.ext.tables.TableBody;
 import com.vladsch.flexmark.ext.tables.TableCell;
@@ -135,18 +136,14 @@ public class MarkdownParserTest {
 		currentNode = currentNode.getNext();
 		
 		assertNotNull(currentNode);
-		assertTrue(currentNode instanceof Paragraph);
+		assertTrue(currentNode instanceof Image);
+		assertTrue(currentNode instanceof PlantUmlImage);
 		
-		paragraph = (Paragraph) currentNode;
+		PlantUmlImage plantUmlImage = (PlantUmlImage) currentNode;
 		
-		assertTrue(paragraph.getFirstChild() instanceof Image);
-		assertEquals(paragraph.getFirstChild(), paragraph.getLastChild());
-		
-		image = (Image) paragraph.getFirstChild();
-		
-		assertEquals("External PlantUML diagram file", image.getText().toString());
-		assertEquals("PlantUML/classes.puml", image.getPageRef().toString());
-		
+		assertEquals("External PlantUML diagram file", plantUmlImage.getText().toString());
+		assertEquals("PlantUML/classes.puml", plantUmlImage.getPageRef().toString());
+
 		
 		
 		while (!(currentNode instanceof TableBlock)) {
