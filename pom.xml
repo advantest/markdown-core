@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.0.20240102</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
