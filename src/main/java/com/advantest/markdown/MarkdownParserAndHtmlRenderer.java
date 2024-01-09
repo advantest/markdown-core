@@ -82,10 +82,36 @@ public class MarkdownParserAndHtmlRenderer {
     	return this.htmlRenderer;
     }
     
+    /**
+     * Reads the given Markdown source code and parses it, i.e. creates the source code's
+     * abstract syntax tree representation, a so called {@link Document}.
+     * 
+     * <bold>Warning!</bold> This method does not know anything about file names,
+     * what might be needed to resolve paths to referenced files.
+     * If the source code has file references, then use {@link #parseMarkdown(File)} instead
+     * or explicitly add path information to the parsed {@link Document} by
+     * setting the variable {@link PlantUmlExtension#KEY_DOCUMENT_FILE_PATH} to the
+     * parsed file's absolute path.
+     * 
+     * @param markdownSourceCode the Markdown source code to be parsed
+     * @return the parsed abstract syntax tree's root, never <code>null</code>
+     */
     public Document parseMarkdown(String markdownSourceCode) {
         return this.markdownParser.parse(markdownSourceCode);
     }
     
+    /**
+     * Reads the given Markdown source code and parses it, i.e. creates the source code's
+     * abstract syntax tree representation, a so called {@link Document}.
+     * Since this method gets a file, not just a string, it also considers the file's path,
+     * what is needed to resolve relative paths to other files (Markdown or PlantUML file)
+     * referenced from the given source code.
+     * 
+     * @param markdownFile file to be parsed, must have file extension .md
+     * @return the parsed abstract syntax tree, never <code>null</code>
+     * @throws IOException if reading the file fails
+     * @throws IllegalArgumentException if the given file is not a readable Markdown file with file extension .md
+     */
     public Document parseMarkdown(File markdownFile) throws IOException {
     	if (markdownFile == null || !markdownFile.canRead() || !"md".equals(getFileExtension(markdownFile))) {
     		throw new IllegalArgumentException("Argument is not a readable Markdown file.");
@@ -99,10 +125,26 @@ public class MarkdownParserAndHtmlRenderer {
    		return parsedDocument;
     }
     
+    /**
+     * Translates the given abstract syntax tree (with the given {@link Node} as root)
+     * to HTML source code. The given {@link Node} might be a {@link Document} parsed
+     * by {@link #parseMarkdown(String)} or {@link #parseMarkdown(File)}.
+     * 
+     * @param markdownAstNode the root of the abstract syntax tree to be translated to HTML code
+     * @return the resulting HTML source code
+     */
     public String renderHtml(Node markdownAstNode) {
         return this.htmlRenderer.render(markdownAstNode);
     }
     
+    /**
+     * Convenience method for parsing Markdown source code and then translating it to HTML.
+     * Please consider the hints of {@link #parseMarkdown(String)} method. It might be useful
+     * to use {@link #parseMarkdown(File)} instead and then {@link #renderHtml(Node)}.
+     * 
+     * @param markdownSourceCode the Markdown source code to be parsed and translated to HTML
+     * @return the resulting HTML source code
+     */
     public String parseMarkdownAndRenderHtml(String markdownSourceCode) {
         return this.renderHtml(this.parseMarkdown(markdownSourceCode));
     }
@@ -113,18 +155,18 @@ public class MarkdownParserAndHtmlRenderer {
 		return new String(bytes);
 	}
     
-    private String getFileExtension(File file) {
+    protected String getFileExtension(File file) {
     	if (file == null) {
     		return null;
     	}
     	String fileName = file.getName();
     	int indexOfLastDot = fileName.lastIndexOf(".");
     	
-    	if (indexOfLastDot < 0) {
+    	if (indexOfLastDot < 0 || indexOfLastDot + 1 >= fileName.length()) {
     		return null;
     	}
     	
-    	return fileName.substring(indexOfLastDot);
+    	return fileName.substring(indexOfLastDot + 1);
     }
     
 }
