@@ -87,7 +87,7 @@ public class MarkdownParserAndHtmlRenderer {
     }
     
     public Document parseMarkdown(File markdownFile) throws IOException {
-    	if (markdownFile == null || !markdownFile.canRead() || "md".equals(getFileExtension(markdownFile))) {
+    	if (markdownFile == null || !markdownFile.canRead() || !"md".equals(getFileExtension(markdownFile))) {
     		throw new IllegalArgumentException("Argument is not a readable Markdown file.");
     	}
    		String textFileContents = readTextFromFile(markdownFile);
