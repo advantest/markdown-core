@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +15,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.vladsch.flexmark.ast.HtmlCommentBlock;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
 public class MarkdownParserAndHtmlRendererExtensionsTest {
+	
+	private static final String TEST_SRC_PATH = "src/test/resources";
 	
 	private MarkdownParserAndHtmlRenderer parserRenderer;
 	
@@ -34,21 +38,14 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	
 	@Test
 	public void hiddenCommentsParsedButNotRenderedInHtml() throws Exception {
-		String testFilePath = "src/test/resources/markdown/extensions/hidden-comments.md";
+		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/hidden-comments.md";
 		File mdFile = new File(testFilePath);
 		
 		Document document = parserRenderer.parseMarkdown(mdFile);
 		String htmlResult = parserRenderer.renderHtml(document);
 		
 		assertNotNull(document);
-		List<HtmlCommentBlock> commentNodes = new ArrayList<>();
-		ReversiblePeekingIterator<Node> iterator = document.getDescendants().iterator();
-		while(iterator.hasNext()) {
-			Node node = iterator.next();
-			if (node instanceof HtmlCommentBlock) {
-				commentNodes.add((HtmlCommentBlock) node);
-			}
-		}
+		List<HtmlCommentBlock> commentNodes = collectAstNodes(HtmlCommentBlock.class, document);
 		assertEquals(4, commentNodes.size());
 		assertEquals("<!-- Some usual one-line comment, not hidden -->\n", commentNodes.get(0).getChars().toString());
 		assertEquals("<!-- Comments can be spanned\nover \nseveral lines -->\n", commentNodes.get(1).getChars().toString());
@@ -57,12 +54,12 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
-		String regex = "<!--\\sSome usual one-line comment, not hidden\\s-->";
+		String regex = "<!--\\s+Some usual one-line comment, not hidden\\s+-->";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertTrue(matcher.find());
 		
-		regex = "<!--\\sComments can be spanned\\nover \\nseveral lines\\s-->";
+		regex = "<!--\\s+Comments can be spanned\\nover \\nseveral lines\\s+-->";
 		pattern = Pattern.compile(regex);
 		matcher = pattern.matcher(htmlResult);
 		assertTrue(matcher.find());
@@ -78,5 +75,45 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 //		matcher = pattern.matcher(htmlResult);
 //		assertFalse(matcher.find(), "Found hidden comment in rendered HTML");
 	}
+	
+	@Test
+	public void plantUmlIncludesAreRenderedToSvg() throws Exception {
+		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/puml-include.md";
+		File mdFile = new File(testFilePath);
+		
+		Document document = parserRenderer.parseMarkdown(mdFile);
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		assertNotNull(document);
+		List<PlantUmlImage> plantUmlImageNodes = collectAstNodes(PlantUmlImage.class, document);
+		assertEquals(2, plantUmlImageNodes.size());
+		assertEquals("diagrams/plantumlComponents.puml", plantUmlImageNodes.get(0).getUrl().toString());
+		assertEquals("../../PlantUML/classes.puml", plantUmlImageNodes.get(1).getUrl().toString());
+		
+		assertNotNull(htmlResult);
+		assertFalse(htmlResult.isBlank());
+		String regex = "<figure>\\s*<svg ";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(htmlResult);
+		int numberOfRenderedSvgImages = matcher.results().collect(Collectors.toList()).size();
+		assertEquals(2, numberOfRenderedSvgImages);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> List<T> collectAstNodes(Class<T> nodeTypeToCollect, Node astRootNode) {
+		List<T> commentNodes = new ArrayList<>();
+		
+		ReversiblePeekingIterator<Node> iterator = astRootNode.getDescendants().iterator();
+		
+		while(iterator.hasNext()) {
+			Node node = iterator.next();
+			if (nodeTypeToCollect.isInstance(node)) {
+				commentNodes.add((T) node);
+			}
+		}
+		
+		return commentNodes;
+	}
+	
 
 }

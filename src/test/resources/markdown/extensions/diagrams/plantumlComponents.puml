@@ -1,0 +1,12 @@
+@startuml
+title PlantUML version: %version()
+
+[PlantUML extension] --> [flexmark-java]
+[markdown-core] --> [flexmark-java]
+[markdown-core] --> [PlantUML extension]
+[FluentMark AE] --> [markdown-core]
+[Bitbucket rendering plug-in] --> [markdown-core]
+
+footer File name: %filename() 
+
+@enduml
