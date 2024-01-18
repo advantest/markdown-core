@@ -38,6 +38,11 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
+	public void explicitSectionAnchorsAreCorrectlyRenderedToHtml() {
+		fail();
+	}
+	
+	@Test
 	public void hiddenCommentsParsedButNotRenderedInHtml() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/hidden-comments.md";
 		File mdFile = new File(testFilePath);
@@ -119,7 +124,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertEquals(2, matcher.results().collect(Collectors.toList()).size());
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	private <T> List<T> collectAstNodes(Class<T> nodeTypeToCollect, Node astRootNode) {
 		List<T> commentNodes = new ArrayList<>();
