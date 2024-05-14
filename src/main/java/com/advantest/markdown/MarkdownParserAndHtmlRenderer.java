@@ -41,6 +41,7 @@ public class MarkdownParserAndHtmlRenderer {
 
         options.set(HtmlRenderer.RENDER_HEADER_ID, true);
         options.set(HtmlRenderer.GENERATE_HEADER_ID, false);
+        options.set(HtmlRenderer.FENCED_CODE_LANGUAGE_CLASS_PREFIX, "");
 
         options.set(Parser.EXTENSIONS, Arrays.asList(
                 // see https://github.com/vsch/flexmark-java/wiki/Tables-Extension
