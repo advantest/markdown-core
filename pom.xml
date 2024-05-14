@@ -72,6 +72,12 @@
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-figures</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-ext-attributes</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>

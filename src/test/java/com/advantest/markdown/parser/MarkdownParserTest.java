@@ -25,7 +25,6 @@ import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.Heading;
 import com.vladsch.flexmark.ast.HtmlCommentBlock;
 import com.vladsch.flexmark.ast.Image;
-import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.ext.attributes.AttributesNode;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
@@ -107,14 +106,9 @@ public class MarkdownParserTest {
 		currentNode = currentNode.getNext();
 		
 		assertNotNull(currentNode);
-		assertTrue(currentNode instanceof Paragraph);
+		assertTrue(currentNode instanceof Image);
 		
-		Paragraph paragraph = (Paragraph) currentNode;
-		
-		assertTrue(paragraph.getFirstChild() instanceof Image);
-		assertEquals(paragraph.getFirstChild(), paragraph.getLastChild());
-		
-		Image image = (Image) paragraph.getFirstChild();
+		Image image = (Image) currentNode;
 		
 		assertEquals("The FluentMark Logo PNG image (bitmap graphics)", image.getText().toString());
 		assertEquals("../../doc/Logo110x80.png", image.getPageRef().toString());

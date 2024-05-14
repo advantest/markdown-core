@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
+import com.vladsch.flexmark.ext.figures.FiguresExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
@@ -42,21 +43,24 @@ public class MarkdownParserAndHtmlRenderer {
         options.set(HtmlRenderer.GENERATE_HEADER_ID, false);
 
         options.set(Parser.EXTENSIONS, Arrays.asList(
-        		// see https://github.com/vsch/flexmark-java/wiki/Tables-Extension
+                // see https://github.com/vsch/flexmark-java/wiki/Tables-Extension
                 TablesExtension.create(),
                 
                 // see https://github.com/vsch/flexmark-java/wiki/Extensions#gfm-strikethroughsubscript
-        		StrikethroughExtension.create(),
-        		
-        		// see https://github.com/vsch/flexmark-java/wiki/Extensions#autolink
-        		AutolinkExtension.create(),
+                StrikethroughExtension.create(),
+                
+                // see https://github.com/vsch/flexmark-java/wiki/Extensions#autolink
+                AutolinkExtension.create(),
                 
                 // see https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
-        		// needed e.g. for setting custom heading anchor IDs
+                // needed e.g. for setting custom heading anchor IDs
                 AttributesExtension.create(),
                 
                 // Advantest's PlantUML extension
-                PlantUmlExtension.create()
+                PlantUmlExtension.create(),
+                
+                // Advantest's extension for rendering images in figure tags and with figcaption
+                FiguresExtension.create()
         ));
 
         return options;
