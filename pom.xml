@@ -19,7 +19,8 @@
 	</prerequisites>
 
 	<properties>
-		<flexmark-version>0.64.8.20240102</flexmark-version>
+		<!-- <flexmark-version>0.64.8.20240102</flexmark-version> -->
+		<flexmark-version>0.64.8-SNAPSHOT</flexmark-version>
 		<plantuml-lib-version>1.2024.4</plantuml-lib-version>
 		<java-version>11</java-version>
 		<junit-version>5.9.2</junit-version>
