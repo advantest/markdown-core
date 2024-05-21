@@ -10,6 +10,7 @@ import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.figures.FiguresExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
+import com.vladsch.flexmark.ext.math.MathExtension;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -61,7 +62,10 @@ public class MarkdownParserAndHtmlRenderer {
                 PlantUmlExtension.create(),
                 
                 // Advantest's extension for rendering images in figure tags and with figcaption
-                FiguresExtension.create()
+                FiguresExtension.create(),
+                
+                // Advantest's extension for parsing and rendering math formulas
+                MathExtension.create()
         ));
 
         return options;
