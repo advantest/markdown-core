@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0-20240604-1451</version>
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
@@ -19,8 +19,7 @@
 	</prerequisites>
 
 	<properties>
-		<!-- <flexmark-version>0.64.8.20240102</flexmark-version> -->
-		<flexmark-version>0.64.8-SNAPSHOT</flexmark-version>
+		<flexmark-version>0.64.9-20240604-1441</flexmark-version>
 		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
 		<java-version>11</java-version>
 		<junit-version>5.9.2</junit-version>
