@@ -1,7 +1,12 @@
+/*
+ * This work is made available under the terms of the BSD 2-Clause "Simplified" License.
+ * The BSD accompanies this distribution (LICENSE.txt).
+ * 
+ * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ */
 package com.advantest.markdown;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
