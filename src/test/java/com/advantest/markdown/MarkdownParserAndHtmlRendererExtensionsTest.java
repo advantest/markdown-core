@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.html.HTMLTableRowElement;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,6 +48,22 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	@Test
 	public void explicitSectionAnchorsAreCorrectlyRenderedToHtml() {
 		fail();
+	}
+	
+	@Test
+	public void tablesWithSingleHyphenPerColumnInDelimiterLineCorrectlyRendered() {
+		String markdownSource = "|Table header|\n"
+				+ "|-|\n"
+				+ "|row 1|\n"
+				+ "|row 2|";
+		
+		Document document = parserRenderer.parseMarkdown(markdownSource);
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		assertNotNull(document);
+		assertNotNull(htmlResult);
+		assertFalse(htmlResult.isBlank());
+		assertTrue(htmlResult.contains("<table>"));
 	}
 	
 	@Test
