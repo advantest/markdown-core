@@ -50,6 +50,22 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
+	public void tablesWithSingleHyphenPerColumnInDelimiterLineCorrectlyRendered() {
+		String markdownSource = "|Table header|\n"
+				+ "|-|\n"
+				+ "|row 1|\n"
+				+ "|row 2|";
+		
+		Document document = parserRenderer.parseMarkdown(markdownSource);
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		assertNotNull(document);
+		assertNotNull(htmlResult);
+		assertFalse(htmlResult.isBlank());
+		assertTrue(htmlResult.contains("<table>"));
+	}
+	
+	@Test
 	public void hiddenCommentsParsedButNotRenderedInHtml() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/hidden-comments.md";
 		File mdFile = new File(testFilePath);
