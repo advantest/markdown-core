@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.1-20240819-1635</version>
+	<version>1.0.2-20240821-1452</version>
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
@@ -90,6 +90,12 @@
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-ext-tables</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-footnotes</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
 		

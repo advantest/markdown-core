@@ -66,6 +66,21 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
+	public void footnotesAreRendered() {
+		String markdownSource = "Text with Footnotes[^footnotes] is rendered.\n\n"
+				+ "[^footnotes]: A footnote is a note at the bottom of a page. It has a number that markes a word in the text.";
+		
+		Document document = parserRenderer.parseMarkdown(markdownSource);
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		assertNotNull(document);
+		assertNotNull(htmlResult);
+		assertFalse(htmlResult.isBlank());
+		assertFalse(htmlResult.contains("[^footnotes]"));
+		assertTrue(htmlResult.contains("<div class=\"footnotes\">"));
+	}
+	
+	@Test
 	public void hiddenCommentsParsedButNotRenderedInHtml() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/hidden-comments.md";
 		File mdFile = new File(testFilePath);
