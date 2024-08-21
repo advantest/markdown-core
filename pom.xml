@@ -95,6 +95,12 @@
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-footnotes</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-ext-gfm-strikethrough</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.figures.FiguresExtension;
+import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.math.MathExtension;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
@@ -66,6 +67,9 @@ public class MarkdownParserAndHtmlRenderer {
                 // see https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
                 // needed e.g. for setting custom heading anchor IDs
                 AttributesExtension.create(),
+                
+                // see https://github.com/vsch/flexmark-java/wiki/Extensions#footnotes
+                FootnoteExtension.create(),
                 
                 // Advantest's PlantUML extension
                 PlantUmlExtension.create(),
