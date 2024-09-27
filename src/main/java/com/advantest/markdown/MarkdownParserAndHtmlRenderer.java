@@ -53,6 +53,8 @@ public class MarkdownParserAndHtmlRenderer {
         
         // see https://github.com/vsch/flexmark-java/wiki/Tables-Extension#parsing-details
         options.set(TablesExtension.MIN_SEPARATOR_DASHES, 1);
+        
+        options.set(PlantUmlExtension.KEY_RENDER_FENCED_PLANTUML_CODE_BLOCKS, true);
 
         options.set(Parser.EXTENSIONS, Arrays.asList(
                 // see https://github.com/vsch/flexmark-java/wiki/Tables-Extension
