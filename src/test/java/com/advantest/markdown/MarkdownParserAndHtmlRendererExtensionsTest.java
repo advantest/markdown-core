@@ -20,8 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.HtmlCommentBlock;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlBlockNode;
+import com.vladsch.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
@@ -161,6 +163,28 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertEquals(2, matcher.results().collect(Collectors.toList()).size());
+	}
+	
+	@Test
+	public void plantUmlFencedCodeBlocksAreRenderedToSvg() throws Exception {
+		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/fenced-puml.md";
+		File mdFile = new File(testFilePath);
+		
+		Document document = parserRenderer.parseMarkdown(mdFile);
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		assertNotNull(document);
+		List<PlantUmlFencedCodeBlockNode> plantUmlCodeBlockNodes = collectAstNodes(PlantUmlFencedCodeBlockNode.class, document);
+		assertEquals(1, plantUmlCodeBlockNodes.size());
+		List<FencedCodeBlock> fencedCodeBlockNodes = collectAstNodes(FencedCodeBlock.class, document);
+		assertEquals(2, fencedCodeBlockNodes.size());
+		
+		assertNotNull(htmlResult);
+		assertFalse(htmlResult.isBlank());
+		String regex = "<figure>\\s*<svg ";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(htmlResult);
+		assertEquals(1, matcher.results().collect(Collectors.toList()).size());
 	}
 	
 	@SuppressWarnings("unchecked")
