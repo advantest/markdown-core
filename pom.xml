@@ -39,12 +39,6 @@
 			<version>${plantuml-lib-version}</version>
 		</dependency>
 
-		<!--<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-all</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>-->
-
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark</artifactId>
@@ -184,68 +178,6 @@
 					</execution>
 
 				</executions>
-
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-
-					<execution>
-						<id>copy</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<artifactItem>
-									<groupId>net.sourceforge.plantuml</groupId>
-									<artifactId>plantuml</artifactId>
-									<version>${plantuml-lib-version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-							</artifactItems>
-
-							<outputDirectory>lib</outputDirectory>
-							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>copy-flexmark</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<artifactItem>
-									<groupId>com.vladsch.flexmark</groupId>
-									<artifactId>flexmark-all</artifactId>
-									<version>${flexmark-version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-							</artifactItems>
-
-							<outputDirectory>lib</outputDirectory>
-							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>
-
-				</executions>
-			</plugin>-->
 			</plugin>
 
 			<plugin>
@@ -261,23 +193,6 @@
 				</dependencies>
 			</plugin>
 
-			<!--<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>-->
-			
 			<plugin>
 				<groupId>org.jfrog.buildinfo</groupId>
 				<artifactId>artifactory-maven-plugin</artifactId>
