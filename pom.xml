@@ -163,21 +163,20 @@
 				</configuration>
 			</plugin>
 
-			<!--<plugin>
+			<plugin>
 				<groupId>com.googlecode.maven-download-plugin</groupId>
 				<artifactId>download-maven-plugin</artifactId>
-				<version>1.6.8</version>
+				<version>1.11.0</version>
 				<executions>
 
 					<execution>
-						<id>copy-flexmark-sources</id>
+						<id>copy-plantuml-sources</id>
 						<phase>process-resources</phase>
 						<goals>
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>https://github.com/vsch/flexmark-java/archive/refs/tags/${flexmark-version}.zip</url>
-							<outputFileName>flexmark-java-${flexmark-version}.zip</outputFileName>
+							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-lib-version}/plantuml-${plantuml-lib-version}-sources.jar</url>
 							<unpack>false</unpack>
 							<outputDirectory>${project.basedir}/lib</outputDirectory>
 							<overwrite>false</overwrite>
@@ -185,7 +184,6 @@
 					</execution>
 
 				</executions>
-			</plugin>-->
 
 			<!--<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -248,6 +246,7 @@
 
 				</executions>
 			</plugin>-->
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
