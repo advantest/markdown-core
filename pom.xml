@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.3-20240927-1737</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
+	<version>1.0.4-20241017-1223</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
@@ -19,7 +19,7 @@
 	</prerequisites>
 
 	<properties>
-		<flexmark-version>0.64.10-20240927-1457</flexmark-version>
+		<flexmark-version>0.64.11-20241016-1520</flexmark-version>
 		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
@@ -38,12 +38,6 @@
 			<artifactId>plantuml</artifactId>
 			<version>${plantuml-lib-version}</version>
 		</dependency>
-
-		<!--<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-all</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>-->
 
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
@@ -128,6 +122,14 @@
 	</dependencies>
 
 	<build>
+		
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		
 		<plugins>
 
 			<plugin>
@@ -153,6 +155,15 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<configuration>
+					<propertiesEncoding>UTF-8</propertiesEncoding>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -163,21 +174,20 @@
 				</configuration>
 			</plugin>
 
-			<!--<plugin>
+			<plugin>
 				<groupId>com.googlecode.maven-download-plugin</groupId>
 				<artifactId>download-maven-plugin</artifactId>
-				<version>1.6.8</version>
+				<version>1.11.0</version>
 				<executions>
 
 					<execution>
-						<id>copy-flexmark-sources</id>
+						<id>copy-plantuml-sources</id>
 						<phase>process-resources</phase>
 						<goals>
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>https://github.com/vsch/flexmark-java/archive/refs/tags/${flexmark-version}.zip</url>
-							<outputFileName>flexmark-java-${flexmark-version}.zip</outputFileName>
+							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-lib-version}/plantuml-${plantuml-lib-version}-sources.jar</url>
 							<unpack>false</unpack>
 							<outputDirectory>${project.basedir}/lib</outputDirectory>
 							<overwrite>false</overwrite>
@@ -185,69 +195,7 @@
 					</execution>
 
 				</executions>
-			</plugin>-->
-
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-
-					<execution>
-						<id>copy</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<artifactItem>
-									<groupId>net.sourceforge.plantuml</groupId>
-									<artifactId>plantuml</artifactId>
-									<version>${plantuml-lib-version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-							</artifactItems>
-
-							<outputDirectory>lib</outputDirectory>
-							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>copy-flexmark</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy</goal>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-
-								<artifactItem>
-									<groupId>com.vladsch.flexmark</groupId>
-									<artifactId>flexmark-all</artifactId>
-									<version>${flexmark-version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-
-							</artifactItems>
-
-							<outputDirectory>lib</outputDirectory>
-							<stripVersion>false</stripVersion>
-							<overWriteRelease>true</overWriteRelease>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
-					</execution>
-
-				</executions>
-			</plugin>-->
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -262,23 +210,6 @@
 				</dependencies>
 			</plugin>
 
-			<!--<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>-->
-			
 			<plugin>
 				<groupId>org.jfrog.buildinfo</groupId>
 				<artifactId>artifactory-maven-plugin</artifactId>
