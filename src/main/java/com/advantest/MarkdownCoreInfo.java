@@ -13,7 +13,8 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.advantest.plantuml.PlantUmlToSvgRenderer;
+import net.sourceforge.plantuml.dot.Graphviz;
+import net.sourceforge.plantuml.dot.GraphvizUtils;
 
 public class MarkdownCoreInfo {
 	
@@ -21,6 +22,7 @@ public class MarkdownCoreInfo {
 	private static String plantUmlVersion;
 	private static String flexmarkVersion;
 	private static String graphvizVersion;
+	private static String graphvizExecutable;
 	
 	private static final String PROPERTY_MARKDOWN_CORE_VERSION = "markdownCoreVersion";
 	private static final String PROPERTY_FLEXMARK_VERSION = "flexmarkVersion";
@@ -52,36 +54,19 @@ public class MarkdownCoreInfo {
 	}
 	
 	private static void readGraphvizVersion() {
-		String plantUmlCode = """
-			@startuml
-			testdot
-			@enduml
-			""";
+		Graphviz graphviz = GraphvizUtils.create(null, "foo;", "svg");
 		
-		String svgCode = null;
-		try {
-			svgCode = new PlantUmlToSvgRenderer().plantUmlToSvg(plantUmlCode);
-		} catch (Exception e) {
-			// ignore exception
+		graphvizExecutable = graphviz.getDotExe() != null ? graphviz.getDotExe().getAbsolutePath() : "";
+		
+		// Remove textual prefix in a string like "dot - graphviz version 12.1.2 (20240928.0832)"
+		String versionText = graphviz.dotVersion();
+		Pattern versionPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\s\\([\\d\\.]*\\)");
+		Matcher versionMatcher = versionPattern.matcher(versionText);
+		if (versionMatcher.find()) {
+			graphvizVersion = versionMatcher.group();
+			return;
 		}
-		
-		if (svgCode != null) {
-			int index = svgCode.indexOf("Dot version:");
-			if (index >= 0) {
-				int endIndex = svgCode.indexOf("<", index);
-				if (endIndex >= 0) {
-					String versionText = svgCode.substring(index, endIndex);
-					
-					Pattern versionPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\s\\([\\d\\.]*\\)");
-					Matcher versionMatcher = versionPattern.matcher(versionText);
-					if (versionMatcher.find()) {
-						graphvizVersion = versionMatcher.group();
-						return;
-					}
-				}
-			}
-		}
-		
+
 		graphvizVersion = "";
 	}
 	
@@ -108,6 +93,10 @@ public class MarkdownCoreInfo {
 	
 	public static String getGraphvizVersion() {
 		return graphvizVersion;
+	}
+	
+	public static String getGraphvizExecutable() {
+		return graphvizExecutable;
 	}
 	
 }

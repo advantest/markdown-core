@@ -48,9 +48,18 @@ public class MarkdownCoreInfoTest {
 	
 	@Test
 	public void testReadingGraphvizVersion() {
-		assertNotNull(MarkdownCoreInfo.getGraphvizVersion());
-		assertFalse(MarkdownCoreInfo.getGraphvizVersion().isBlank());
-		assertTrue(MarkdownCoreInfo.getGraphvizVersion().matches("\\d+\\.\\d+\\.\\d+.*"));
+		String version = MarkdownCoreInfo.getGraphvizVersion();
+		assertNotNull(version);
+		assertFalse(version.isBlank());
+		assertTrue(version.matches("\\d+\\.\\d+\\.\\d+.*"));
+	}
+	
+	@Test
+	public void testReadingGraphvizExecutable() {
+		String executable = MarkdownCoreInfo.getGraphvizExecutable();
+		assertNotNull(executable);
+		assertFalse(executable.isBlank());
+		assertTrue(executable.endsWith("dot") || executable.endsWith("dot.exe"));
 	}
 
 }
