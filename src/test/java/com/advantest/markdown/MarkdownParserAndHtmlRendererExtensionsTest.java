@@ -8,10 +8,13 @@ package com.advantest.markdown;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,6 +146,8 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		Matcher matcher = pattern.matcher(htmlResult);
 		int numberOfRenderedSvgImages = matcher.results().collect(Collectors.toList()).size();
 		assertEquals(2, numberOfRenderedSvgImages);
+		
+		assertCorrectSvgAttributes(htmlResult);
 	}
 	
 	@Test
@@ -163,6 +168,8 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertEquals(2, matcher.results().collect(Collectors.toList()).size());
+		
+		assertCorrectSvgAttributes(htmlResult);
 	}
 	
 	@Test
@@ -185,6 +192,8 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertEquals(1, matcher.results().collect(Collectors.toList()).size());
+		
+		assertCorrectSvgAttributes(htmlResult);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -203,5 +212,37 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		return commentNodes;
 	}
 	
+	private void assertCorrectSvgAttributes(String htmlCode) {
+		findSvgTagsInHtml(htmlCode).forEach(
+				match -> {
+					String svgTag = match.group();
+					assertTrue(svgTag.contains("width=\""));
+					assertTrue(svgTag.contains("style=\""));
+					assertFalse(svgTag.contains("preserveAspectRatio=\"none\""));
+					assertFalse(svgTag.contains("height=\""));
+
+					List<String> styleAttrValuePairs = Arrays.stream(svgTag.split("\\s"))
+						.filter(attr -> attr.startsWith("style="))
+						.map(style -> style.substring(style.indexOf("\"") + 1, style.lastIndexOf("\"")))
+						.flatMap(styleAttrs -> Arrays.stream(styleAttrs.split(";")))
+						.collect(Collectors.toList());
+					
+					assertTrue(styleAttrValuePairs.contains("max-width:100%"));
+					
+					List<String> styleAttrs = styleAttrValuePairs.stream()
+							.map(styleAttrValue -> styleAttrValue.substring(0, styleAttrValue.indexOf(':')))
+							.collect(Collectors.toList());
+					
+					assertFalse(styleAttrs.contains("width"));
+					assertFalse(styleAttrs.contains("height"));
+				});
+	}
+	
+	private Stream<MatchResult> findSvgTagsInHtml(String htmlCode) {
+		String regex = "<svg\\s.*?>";
+		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE & Pattern.MULTILINE);
+		Matcher matcher = pattern.matcher(htmlCode);
+		return matcher.results();
+	}
 
 }
