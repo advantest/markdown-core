@@ -221,13 +221,13 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 					assertFalse(svgTag.contains("preserveAspectRatio=\"none\""));
 					assertFalse(svgTag.contains("height=\""));
 
-					List<String> styleAttrValuePairs = Arrays.stream(svgTag.split("\\s"))
-						.filter(attr -> attr.startsWith("style="))
-						.map(style -> style.substring(style.indexOf("\"") + 1, style.lastIndexOf("\"")))
-						.flatMap(styleAttrs -> Arrays.stream(styleAttrs.split(";")))
-						.collect(Collectors.toList());
+					String styleBegin = "style=\"";
+					String styleValue = svgTag.substring(svgTag.indexOf(styleBegin) + styleBegin.length());
+					styleValue = styleValue.substring(0, styleValue.indexOf('"'));
 					
-					assertTrue(styleAttrValuePairs.contains("max-width:100%"));
+					List<String> styleAttrValuePairs = Arrays.stream(styleValue.split(";\\s*")).toList();
+					
+					assertTrue(styleAttrValuePairs.contains("max-width: 100%"));
 					
 					List<String> styleAttrs = styleAttrValuePairs.stream()
 							.map(styleAttrValue -> styleAttrValue.substring(0, styleAttrValue.indexOf(':')))
