@@ -48,7 +48,7 @@ jobs:
           <servers>
             <server>
               <id>github-packages-flexmark</id>
-              <username>${{ github.actor }}</username>
+              <username>__token__</username>
               <password>${{ secrets.GITHUB_TOKEN }}</password>
             </server>
           </servers>
