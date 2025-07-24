@@ -239,5 +239,40 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>deploy-github</id>
+			<distributionManagement>
+				<repository>
+					<id>github</id>
+					<name>Advantest's Maven Packages on GitHub</name>
+					<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+				</repository>
+				<snapshotRepository>
+					<id>github</id>
+					<name>Advantest's Maven Packages on GitHub</name>
+					<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+				</snapshotRepository>
+			</distributionManagement>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
+						<executions>
+							<execution>
+								<id>package-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
