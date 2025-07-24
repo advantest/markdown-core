@@ -26,7 +26,6 @@ public class MarkdownCoreInfo {
 	
 	private static final String PROPERTY_MARKDOWN_CORE_VERSION = "markdownCoreVersion";
 	private static final String PROPERTY_FLEXMARK_VERSION = "flexmarkVersion";
-	private static final String PROPERTY_PLANTUML_VERSION = "plantUmlVersion";
 	
 	static {
 		readProperties();
@@ -45,12 +44,9 @@ public class MarkdownCoreInfo {
 			throw new IllegalStateException(e);
 		}
 		version = myProperties.getProperty(PROPERTY_MARKDOWN_CORE_VERSION);
-		plantUmlVersion = myProperties.getProperty(PROPERTY_PLANTUML_VERSION);
 		flexmarkVersion = myProperties.getProperty(PROPERTY_FLEXMARK_VERSION);
 		
-		if (plantUmlVersion == null || plantUmlVersion.isBlank()) {
-			plantUmlVersion = net.sourceforge.plantuml.version.Version.versionString();
-		}
+		plantUmlVersion = net.sourceforge.plantuml.version.Version.versionString();
 	}
 	
 	private static void readGraphvizVersion() {

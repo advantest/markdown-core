@@ -19,8 +19,8 @@
 	</prerequisites>
 
 	<properties>
-		<flexmark-version>0.64.13-20250310-1604</flexmark-version>
-		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
+		<!--<flexmark-version>0.64.13-20250310-1604</flexmark-version>-->
+		<flexmark-version>0.64.14-SNAPSHOT</flexmark-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
 
@@ -31,13 +31,14 @@
 		<java.version>${java-version}</java.version>
 	</properties>
 
-	<dependencies>
+	<repositories>
+		<repository>
+			<id>github-packages-flexmark</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
+		</repository>
+	</repositories>
 
-		<dependency>
-			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml</artifactId>
-			<version>${plantuml-lib-version}</version>
-		</dependency>
+	<dependencies>
 
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
@@ -69,11 +70,11 @@
 			<version>${flexmark-version}</version>
 		</dependency>
 
-        <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-ext-math</artifactId>
-            <version>${flexmark-version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-math</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
@@ -104,7 +105,10 @@
 			<artifactId>flexmark-ext-autolink</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
-		
+
+
+
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -175,25 +179,23 @@
 			</plugin>
 
 			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<version>1.11.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.7.1</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+						<descriptorRef>src</descriptorRef>
+					</descriptorRefs>
+				</configuration>
 				<executions>
-
 					<execution>
-						<id>copy-plantuml-sources</id>
-						<phase>process-resources</phase>
+						<id>assemble-all</id>
+						<phase>package</phase>
 						<goals>
-							<goal>wget</goal>
+							<goal>single</goal>
 						</goals>
-						<configuration>
-							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-lib-version}/plantuml-${plantuml-lib-version}-sources.jar</url>
-							<unpack>false</unpack>
-							<outputDirectory>${project.basedir}/lib</outputDirectory>
-							<overwrite>false</overwrite>
-						</configuration>
 					</execution>
-
 				</executions>
 			</plugin>
 
@@ -237,5 +239,40 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>deploy-github</id>
+			<distributionManagement>
+				<repository>
+					<id>github</id>
+					<name>Advantest's Maven Packages on GitHub</name>
+					<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+				</repository>
+				<snapshotRepository>
+					<id>github</id>
+					<name>Advantest's Maven Packages on GitHub</name>
+					<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+				</snapshotRepository>
+			</distributionManagement>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
+						<executions>
+							<execution>
+								<id>package-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
