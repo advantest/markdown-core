@@ -23,7 +23,7 @@ jobs:
     runs-on: macos-13
     permissions:
       contents: read
-      packages: write
+      packages: read
 
     steps:
     - name: Install Graphviz (needed for PlantUML)
@@ -40,6 +40,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    # work-around since using the token with the setup-java action seems not to work
     - name: Set up settings.xml for Maven and GitHub packages access
       run: |
         mkdir -p $HOME/.m2
