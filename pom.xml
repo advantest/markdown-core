@@ -227,6 +227,31 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			
+			<!-- also download the PlantUML source code for the selected version
+			     in order to simplify debugging -->
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.13.0</version>
+				<executions>
+
+					<execution>
+						<id>copy-plantuml-sources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-version}/plantuml-${plantuml-version}-sources.jar</url>
+							<unpack>false</unpack>
+							<outputDirectory>${project.basedir}/lib</outputDirectory>
+							<overwrite>false</overwrite>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
 
 		</plugins>
 	</build>
