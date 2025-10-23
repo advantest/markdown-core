@@ -21,6 +21,7 @@
 	<properties>
 		<!--<flexmark-version>0.64.13-20250310-1604</flexmark-version>-->
 		<flexmark-version>0.64.14-SNAPSHOT</flexmark-version>
+		<plantuml-version>1.2025.9</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
 
@@ -37,6 +38,18 @@
 			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
 		</repository>
 	</repositories>
+	
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- Sets desired PlantUML version for all transitive dependencies,
+                     might override the PlantUML version from flexmark -->
+                <groupId>net.sourceforge.plantuml</groupId>
+                <artifactId>plantuml</artifactId>
+                <version>${plantuml-version}</version>
+            </dependency>
+        </dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 
