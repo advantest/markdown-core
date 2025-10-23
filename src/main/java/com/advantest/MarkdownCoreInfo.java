@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.dot.Graphviz;
-import net.sourceforge.plantuml.dot.GraphvizUtils;
+import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 
 public class MarkdownCoreInfo {
 	
@@ -50,7 +50,7 @@ public class MarkdownCoreInfo {
 	}
 	
 	private static void readGraphvizVersion() {
-		Graphviz graphviz = GraphvizUtils.create(null, "foo;", "svg");
+		Graphviz graphviz = GraphvizRuntimeEnvironment.getInstance().create(null, "foo;", "svg");
 		
 		graphvizExecutable = graphviz.getDotExe() != null ? graphviz.getDotExe().getAbsolutePath() : "";
 		
