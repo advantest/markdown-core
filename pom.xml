@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.6-20250310-1632</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
+	<version>1.0.7-20251027-2219</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
@@ -19,8 +19,8 @@
 	</prerequisites>
 
 	<properties>
-		<flexmark-version>0.64.13-20250310-1604</flexmark-version>
-		<plantuml-lib-version>1.2024.5</plantuml-lib-version>
+		<flexmark-version>0.65.0-20251027-2130</flexmark-version>
+		<plantuml-version>1.2025.9</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
 
@@ -31,13 +31,26 @@
 		<java.version>${java-version}</java.version>
 	</properties>
 
-	<dependencies>
+	<repositories>
+		<repository>
+			<id>github-packages-flexmark</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
+		</repository>
+	</repositories>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- Sets desired PlantUML version for all transitive dependencies,
+					 might override the PlantUML version from flexmark -->
+				<groupId>net.sourceforge.plantuml</groupId>
+				<artifactId>plantuml</artifactId>
+				<version>${plantuml-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
-		<dependency>
-			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml</artifactId>
-			<version>${plantuml-lib-version}</version>
-		</dependency>
+	<dependencies>
 
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
@@ -69,11 +82,11 @@
 			<version>${flexmark-version}</version>
 		</dependency>
 
-        <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-ext-math</artifactId>
-            <version>${flexmark-version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-math</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
@@ -104,7 +117,10 @@
 			<artifactId>flexmark-ext-autolink</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
-		
+
+
+
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -135,7 +151,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>3.6.2</version>
 				<executions>
 					<execution>
 						<id>enforce-versions</id>
@@ -150,6 +166,7 @@
 								<requireJavaVersion>
 									<version>21</version>
 								</requireJavaVersion>
+								<dependencyConvergence/>
 							</rules>
 						</configuration>
 					</execution>
@@ -174,28 +191,28 @@
 				</configuration>
 			</plugin>
 
+			<!-- TODO decide whether we really need a self-contained jar
 			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<version>1.11.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.7.1</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+						<descriptorRef>src</descriptorRef>
+					</descriptorRefs>
+				</configuration>
 				<executions>
-
 					<execution>
-						<id>copy-plantuml-sources</id>
-						<phase>process-resources</phase>
+						<id>assemble-all</id>
+						<phase>package</phase>
 						<goals>
-							<goal>wget</goal>
+							<goal>single</goal>
 						</goals>
-						<configuration>
-							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-lib-version}/plantuml-${plantuml-lib-version}-sources.jar</url>
-							<unpack>false</unpack>
-							<outputDirectory>${project.basedir}/lib</outputDirectory>
-							<overwrite>false</overwrite>
-						</configuration>
 					</execution>
-
 				</executions>
 			</plugin>
+			-->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -209,33 +226,100 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
+			
+			<!-- also download the PlantUML source code for the selected version
+			     in order to simplify debugging -->
 			<plugin>
-				<groupId>org.jfrog.buildinfo</groupId>
-				<artifactId>artifactory-maven-plugin</artifactId>
-				<version>3.6.1</version>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.13.0</version>
 				<executions>
+
 					<execution>
-						<id>build-info</id>
+						<id>copy-plantuml-sources</id>
+						<phase>process-resources</phase>
 						<goals>
-							<goal>publish</goal>
+							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<publisher>
-								<contextUrl>${ARTIFACTORY_URL}</contextUrl>
-								<username>${ARTIFACTORY_USR}</username>
-								<password>${ARTIFACTORY_PW}</password>
-								<repoKey>${ARTIFACTORY_REPO}</repoKey>
-								<snapshotRepoKey>${ARTIFACTORY_REPO}</snapshotRepoKey>
-								<publishBuildInfo>true</publishBuildInfo>
-							</publisher>
+							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-version}/plantuml-${plantuml-version}-sources.jar</url>
+							<unpack>false</unpack>
+							<outputDirectory>${project.basedir}/lib</outputDirectory>
+							<overwrite>false</overwrite>
 						</configuration>
 					</execution>
+
 				</executions>
 			</plugin>
 
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>deploy-github</id>
+			<distributionManagement>
+				<repository>
+					<id>github</id>
+					<name>Advantest's Maven Packages on GitHub</name>
+					<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+				</repository>
+				<snapshotRepository>
+					<id>github</id>
+					<name>Advantest's Maven Packages on GitHub</name>
+					<url>https://maven.pkg.github.com/advantest/markdown-core</url>
+				</snapshotRepository>
+			</distributionManagement>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
+						<executions>
+							<execution>
+								<id>package-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>deploy-artifactory</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jfrog.buildinfo</groupId>
+						<artifactId>artifactory-maven-plugin</artifactId>
+						<version>3.6.1</version>
+						<executions>
+							<execution>
+								<id>build-info</id>
+								<goals>
+									<goal>publish</goal>
+								</goals>
+								<configuration>
+									<publisher>
+										<contextUrl>${ARTIFACTORY_URL}</contextUrl>
+										<username>${ARTIFACTORY_USR}</username>
+										<password>${ARTIFACTORY_PW}</password>
+										<repoKey>${ARTIFACTORY_REPO}</repoKey>
+										<snapshotRepoKey>${ARTIFACTORY_REPO}</snapshotRepoKey>
+										<publishBuildInfo>true</publishBuildInfo>
+									</publisher>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

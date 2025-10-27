@@ -27,7 +27,6 @@ public class MarkdownCoreInfoTest {
 		assertFalse(MarkdownCoreInfo.getPlantUmlVersion().isBlank());
 		assertFalse(MarkdownCoreInfo.getFlexmarkVersion().isBlank());
 		assertNotEquals("${project.version}", MarkdownCoreInfo.getVersion());
-		assertNotEquals("${plantuml-lib-version}", MarkdownCoreInfo.getPlantUmlVersion());
 		assertNotEquals("${flexmark-version}", MarkdownCoreInfo.getFlexmarkVersion());
 	}
 	

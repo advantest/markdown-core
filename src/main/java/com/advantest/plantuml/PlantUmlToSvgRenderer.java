@@ -17,14 +17,14 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.GeneratedImage;
 import net.sourceforge.plantuml.SourceFileReader;
 import net.sourceforge.plantuml.SourceStringReader;
-import net.sourceforge.plantuml.dot.GraphvizUtils;
+import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 import net.sourceforge.plantuml.preproc.Defines;
 
 public class PlantUmlToSvgRenderer {
 	
 	public void setDotExecutable(String dotExecutablePath) {
 		if (dotExecutablePath != null && !dotExecutablePath.isBlank()) {
-			GraphvizUtils.setDotExecutable(dotExecutablePath);
+			GraphvizRuntimeEnvironment.getInstance().setDotExecutable(dotExecutablePath);
 		}
 	}
 	
