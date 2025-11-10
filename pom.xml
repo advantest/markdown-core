@@ -51,6 +51,12 @@
 	</dependencyManagement>
 
 	<dependencies>
+	
+		<!-- Explicitly declare the PlantUML lib dependency in order to re-use this version also in other projects, even in Gradle projects -->
+		<dependency>
+			<groupId>net.sourceforge.plantuml</groupId>
+			<artifactId>plantuml</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
