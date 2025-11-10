@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.9-20251110-1053</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
+	<version>1.0.10-20251110-1607</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
@@ -51,6 +51,12 @@
 	</dependencyManagement>
 
 	<dependencies>
+	
+		<!-- Explicitly declare the PlantUML lib dependency in order to re-use this version also in other projects, even in Gradle projects -->
+		<dependency>
+			<groupId>net.sourceforge.plantuml</groupId>
+			<artifactId>plantuml</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
