@@ -17,6 +17,7 @@ import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.figures.FiguresExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
+import com.vladsch.flexmark.ext.jira.tickets.JiraTicketExtension;
 import com.vladsch.flexmark.ext.math.MathExtension;
 import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
@@ -80,7 +81,10 @@ public class MarkdownParserAndHtmlRenderer {
                 FiguresExtension.create(),
                 
                 // Advantest's extension for parsing and rendering math formulas
-                MathExtension.create()
+                MathExtension.create(),
+                
+             // Advantest's extension for parsing and rendering jira ticket numbers as links to the tickets
+                JiraTicketExtension.create()
         ));
 
         return options;

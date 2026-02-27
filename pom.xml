@@ -19,7 +19,7 @@
 	</prerequisites>
 
 	<properties>
-		<flexmark-version>0.65.1-20251030-1701</flexmark-version>
+		<flexmark-version>0.65.2-SNAPSHOT</flexmark-version>
 		<plantuml-version>1.2025.10</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
@@ -96,6 +96,12 @@
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-ext-jira-ticket-links</artifactId>
+			<version>${flexmark-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-ext-attributes</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
@@ -123,9 +129,6 @@
 			<artifactId>flexmark-ext-autolink</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
-
-
-
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
