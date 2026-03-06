@@ -12,14 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import com.advantest.flexmark.ext.figures.FiguresExtension;
+import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
+import com.advantest.flexmark.ext.math.MathExtension;
+import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
-import com.vladsch.flexmark.ext.figures.FiguresExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
-import com.vladsch.flexmark.ext.jira.tickets.JiraTicketExtension;
-import com.vladsch.flexmark.ext.math.MathExtension;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.advantest.flexmark.ext.plantuml.PlantUmlImage;
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.Heading;
@@ -24,7 +25,6 @@ import com.vladsch.flexmark.ast.HtmlCommentBlock;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.ext.attributes.AttributesNode;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.ext.tables.TableBody;
 import com.vladsch.flexmark.ext.tables.TableCell;

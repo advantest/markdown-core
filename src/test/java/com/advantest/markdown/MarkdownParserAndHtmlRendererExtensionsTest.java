@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.advantest.flexmark.ext.plantuml.PlantUmlBlockNode;
+import com.advantest.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
+import com.advantest.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.HtmlCommentBlock;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlBlockNode;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
