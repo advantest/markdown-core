@@ -14,10 +14,6 @@
 		<url>https://www.advantest.com/</url>
 	</organization>
 
-	<prerequisites>
-		<maven>3.0</maven>
-	</prerequisites>
-
 	<properties>
 		<flexmark-version>0.65.2-SNAPSHOT</flexmark-version>
 		<flexmark-extensions-version>1.0.0-SNAPSHOT</flexmark-extensions-version>
