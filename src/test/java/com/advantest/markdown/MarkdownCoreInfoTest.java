@@ -23,11 +23,14 @@ public class MarkdownCoreInfoTest {
 		assertNotNull(MarkdownCoreInfo.getVersion());
 		assertNotNull(MarkdownCoreInfo.getPlantUmlVersion());
 		assertNotNull(MarkdownCoreInfo.getFlexmarkVersion());
+		assertNotNull(MarkdownCoreInfo.getFlexmarkExtensionsVersion());
 		assertFalse(MarkdownCoreInfo.getVersion().isBlank());
 		assertFalse(MarkdownCoreInfo.getPlantUmlVersion().isBlank());
 		assertFalse(MarkdownCoreInfo.getFlexmarkVersion().isBlank());
+		assertFalse(MarkdownCoreInfo.getFlexmarkExtensionsVersion().isBlank());
 		assertNotEquals("${project.version}", MarkdownCoreInfo.getVersion());
 		assertNotEquals("${flexmark-version}", MarkdownCoreInfo.getFlexmarkVersion());
+		assertNotEquals("${flexmark-extensions-version}", MarkdownCoreInfo.getFlexmarkVersion());
 	}
 	
 	@Test
