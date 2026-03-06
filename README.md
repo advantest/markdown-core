@@ -18,5 +18,5 @@ The BSD accompanies this distribution: [LICENSE.txt](LICENSE.txt).
 
 # Copyright
 
-Copyright (c) 2022-2025, Advantest Europe GmbH.
+Copyright (c) 2022-2026, Advantest Europe GmbH.
 All rights reserved.
