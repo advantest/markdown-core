@@ -20,6 +20,7 @@
 
 	<properties>
 		<flexmark-version>0.65.2-SNAPSHOT</flexmark-version>
+		<flexmark-extensions-version>1.0.0-SNAPSHOT</flexmark-extensions-version>
 		<plantuml-version>1.2025.10</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
@@ -35,6 +36,10 @@
 		<repository>
 			<id>github-packages-flexmark</id>
 			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
+		</repository>
+		<repository>
+			<id>github-packages-flexmark-extensions</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-extensions</url>
 		</repository>
 	</repositories>
 	
@@ -78,30 +83,6 @@
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-plantuml</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-figures</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-math</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-jira-ticket-links</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-ext-attributes</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
@@ -129,7 +110,33 @@
 			<artifactId>flexmark-ext-autolink</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
+		
+		<!-- our custom extensions -->
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-plantuml</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-figures</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
 
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-math</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-jira-ticket-links</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+
+		<!-- test dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>

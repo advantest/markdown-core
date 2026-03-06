@@ -15,6 +15,7 @@ on:
   pull_request:
     branches:
     - develop
+  workflow_dispatch:
 
 jobs:
   build:
@@ -49,6 +50,11 @@ jobs:
           <servers>
             <server>
               <id>github-packages-flexmark</id>
+              <username>__token__</username>
+              <password>${{ secrets.GITHUB_TOKEN }}</password>
+            </server>
+            <server>
+              <id>github-packages-flexmark-extensions</id>
               <username>__token__</username>
               <password>${{ secrets.GITHUB_TOKEN }}</password>
             </server>
