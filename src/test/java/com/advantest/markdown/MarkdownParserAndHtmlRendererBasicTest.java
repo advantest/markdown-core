@@ -18,17 +18,17 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class MarkdownParserAndHtmlRendererBasicTest {
+class MarkdownParserAndHtmlRendererBasicTest {
 	
 	private MarkdownParserAndHtmlRenderer parserRenderer;
 	
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		parserRenderer = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		parserRenderer = null;
 	}
 	
@@ -38,10 +38,10 @@ public class MarkdownParserAndHtmlRendererBasicTest {
 		"otherFile.puml, puml",
 		"/usr/local/something/file.x, x",
 		"someDirectory, ",
-	    "some/path/to/directory, ",
-	    "some/path/file., "
+		"some/path/to/directory, ",
+		"some/path/file., "
 	})
-	public void readingFileExtensionWorks(String filePath, String fileExtension) {
+	void readingFileExtensionWorks(String filePath, String fileExtension) {
 		File file = new File(filePath);
 		
 		String returnedFileExtension = parserRenderer.getFileExtension(file);
@@ -50,7 +50,7 @@ public class MarkdownParserAndHtmlRendererBasicTest {
 	}
 	
 	@Test
-	public void readingTextFileWorks() throws Exception {
+	void readingTextFileWorks() throws Exception {
 		String filePath = "src/test/resources/PlantUML/testGraphviz.puml";
 		File file = new File(filePath);
 		
@@ -61,7 +61,7 @@ public class MarkdownParserAndHtmlRendererBasicTest {
 	}
 	
 	@Test
-	public void readingNonExistentFileThrowsException() throws Exception {
+	void readingNonExistentFileThrowsException() {
 		String filePath = "src/test/resources/nonExistentFile.foo";
 		File file = new File(filePath);
 		

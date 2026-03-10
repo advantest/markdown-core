@@ -37,29 +37,29 @@ import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
 
 
-public class MarkdownParserTest {
+class MarkdownParserTest {
 	
 	private static File markdownSourceFile;
 	MarkdownParserAndHtmlRenderer parser;
 	
 	@BeforeAll
-	public static void setUpBeforeAll() throws Exception {
+	static void setUpBeforeAll() {
 		String path = "src/test/resources/feature-overview.md";
 		markdownSourceFile = new File(path);
 	}
 	
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		parser = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		parser = null;
 	}
 	
 	@Test
-	public void parsing_common_elements() throws Exception {
+	void parsing_common_elements() throws Exception {
 		Document markdownAstRootNode = parser.parseMarkdown(markdownSourceFile);
 		
 		Node currentNode = markdownAstRootNode.getFirstChild();

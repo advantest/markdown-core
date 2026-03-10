@@ -31,24 +31,24 @@ import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
-public class MarkdownParserAndHtmlRendererExtensionsTest {
+class MarkdownParserAndHtmlRendererExtensionsTest {
 	
 	private static final String TEST_SRC_PATH = "src/test/resources";
 	
 	private MarkdownParserAndHtmlRenderer parserRenderer;
 	
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		parserRenderer = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		parserRenderer = null;
 	}
 	
 	@Test
-	public void explicitSectionAnchorsAreCorrectlyRenderedToHtml() {
+	void explicitSectionAnchorsAreCorrectlyRenderedToHtml() {
 		String markdownSource = """
 				# Section header {#section-header-anchor}
 				
@@ -76,7 +76,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
-	public void tablesWithSingleHyphenPerColumnInDelimiterLineCorrectlyRendered() {
+	void tablesWithSingleHyphenPerColumnInDelimiterLineCorrectlyRendered() {
 		String markdownSource = "|Table header|\n"
 				+ "|-|\n"
 				+ "|row 1|\n"
@@ -92,7 +92,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
-	public void footnotesAreRendered() {
+	void footnotesAreRendered() {
 		String markdownSource = "Text with Footnotes[^footnotes] is rendered.\n\n"
 				+ "[^footnotes]: A footnote is a note at the bottom of a page. It has a number that markes a word in the text.";
 		
@@ -107,7 +107,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
-	public void hiddenCommentsParsedButNotRenderedInHtml() throws Exception {
+	void hiddenCommentsParsedButNotRenderedInHtml() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/hidden-comments.md";
 		File mdFile = new File(testFilePath);
 		
@@ -147,7 +147,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
-	public void plantUmlIncludesAreRenderedToSvg() throws Exception {
+	void plantUmlIncludesAreRenderedToSvg() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/puml-include.md";
 		File mdFile = new File(testFilePath);
 		
@@ -172,7 +172,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
-	public void plantUmlCodeBlocksAreRenderedToSvg() throws Exception {
+	void plantUmlCodeBlocksAreRenderedToSvg() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/inline-puml.md";
 		File mdFile = new File(testFilePath);
 		
@@ -194,7 +194,7 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 	}
 	
 	@Test
-	public void plantUmlFencedCodeBlocksAreRenderedToSvg() throws Exception {
+	void plantUmlFencedCodeBlocksAreRenderedToSvg() throws Exception {
 		String testFilePath = TEST_SRC_PATH + "/markdown/extensions/fenced-puml.md";
 		File mdFile = new File(testFilePath);
 		

@@ -11,23 +11,23 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class MarkdownParserAndHtmlRendererAdvancedTest {
+class MarkdownParserAndHtmlRendererAdvancedTest {
 	
 	@Disabled
 	@Test
-	public void environmentVariablesAreAccessibleFromPlantUmlCode() {
+	void environmentVariablesAreAccessibleFromPlantUmlCode() {
 		fail();
 	}
 	
 	@Disabled
 	@Test
-	public void plantUmlFileNameIsReadableFromPlantUmlCode() {
+	void plantUmlFileNameIsReadableFromPlantUmlCode() {
 		fail();
 	}
 	
 	@Disabled
 	@Test
-	public void plantUmlFilesWithRecursiveIncludesAreRenderedToSvg() {
+	void plantUmlFilesWithRecursiveIncludesAreRenderedToSvg() {
 		fail();
 	}
 
