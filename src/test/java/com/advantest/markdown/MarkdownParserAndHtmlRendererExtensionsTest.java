@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,10 +47,32 @@ public class MarkdownParserAndHtmlRendererExtensionsTest {
 		parserRenderer = null;
 	}
 	
-	@Disabled
 	@Test
 	public void explicitSectionAnchorsAreCorrectlyRenderedToHtml() {
-		fail();
+		String markdownSource = """
+				# Section header {#section-header-anchor}
+				
+				Paragraph text 1
+				
+				## Subsection header {#subsection-header-anchor}
+				
+				Paragraph text 2
+				multi-line text.
+				
+				### Section without explicit anchor
+				
+				some text
+				""";
+		
+		Document document = parserRenderer.parseMarkdown(markdownSource);
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		assertNotNull(document);
+		assertNotNull(htmlResult);
+		assertFalse(htmlResult.isBlank());
+		assertTrue(htmlResult.contains("<h1 id=\"section-header-anchor\">Section header</h1>"));
+		assertTrue(htmlResult.contains("<h2 id=\"subsection-header-anchor\">Subsection header</h2>"));
+		assertTrue(htmlResult.contains("<h3>Section without explicit anchor</h3>"));
 	}
 	
 	@Test
