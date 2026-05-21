@@ -50,7 +50,7 @@ public class PlantUmlToSvgRenderer {
 		File targetFile = null;
 		SourceFileReader reader;
 		try {
-			reader = new SourceFileReader(Defines.createWithFileName(plantUmlSourceFile),
+			reader = new SourceFileReader(true, Defines.createWithFileName(plantUmlSourceFile),
 					plantUmlSourceFile, targetDir, Collections.<String>emptyList(), StandardCharsets.UTF_8.name(), new FileFormatOption(FileFormat.SVG));
 			reader.setCheckMetadata(true);
 			List<GeneratedImage> list = reader.getGeneratedImages();
