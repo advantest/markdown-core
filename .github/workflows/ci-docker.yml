@@ -10,11 +10,9 @@ name: Java CI with Maven and Docker
 
 on:
   push:
-    branches-ignore:
-    - main
   pull_request:
     branches:
-    - develop
+    - main
   workflow_dispatch:
 
 jobs:
@@ -63,7 +61,7 @@ jobs:
       run: mvn -B clean verify -U -s $HOME/.m2/settings.xml
 
     - name: Deploy to GitHub Maven Packages
-      if: github.ref_name == 'develop'
+      if: github.ref_name == 'main'  && github.repository == 'advantest/markdown-core'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: mvn -B -Pdeploy-github -DskipTests deploy -s $HOME/.m2/settings.xml
