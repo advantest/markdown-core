@@ -1,7 +1,7 @@
 <!-- see https://shields.io/badges -->
 
 ![GitHub License](https://img.shields.io/github/license/advantest/markdown-core)
-[![Java CI with Maven](https://github.com/advantest/markdown-core/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/advantest/markdown-core/actions/workflows/ci.yml)
+[![Java CI with Maven](https://github.com/advantest/markdown-core/actions/workflows/ci-docker.yml/badge.svg?branch=main)](https://github.com/advantest/markdown-core/actions/workflows/ci-docker.yml)
 
 # markdown-core
 
