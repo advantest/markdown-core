@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.advantest.flexmark.ext.plantuml.PlantUmlImage;
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.Heading;
@@ -24,7 +25,6 @@ import com.vladsch.flexmark.ast.HtmlCommentBlock;
 import com.vladsch.flexmark.ast.Image;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.ext.attributes.AttributesNode;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlImage;
 import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.ext.tables.TableBody;
 import com.vladsch.flexmark.ext.tables.TableCell;
@@ -37,29 +37,29 @@ import com.vladsch.flexmark.util.collection.iteration.ReversiblePeekingIterator;
 
 
 
-public class MarkdownParserTest {
+class MarkdownParserTest {
 	
 	private static File markdownSourceFile;
 	MarkdownParserAndHtmlRenderer parser;
 	
 	@BeforeAll
-	public static void setUpBeforeAll() throws Exception {
+	static void setUpBeforeAll() {
 		String path = "src/test/resources/feature-overview.md";
 		markdownSourceFile = new File(path);
 	}
 	
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		parser = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		parser = null;
 	}
 	
 	@Test
-	public void parsing_common_elements() throws Exception {
+	void parsing_common_elements() throws Exception {
 		Document markdownAstRootNode = parser.parseMarkdown(markdownSourceFile);
 		
 		Node currentNode = markdownAstRootNode.getFirstChild();

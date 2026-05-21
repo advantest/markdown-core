@@ -12,13 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
+import com.advantest.flexmark.ext.figures.FiguresExtension;
+import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
+import com.advantest.flexmark.ext.math.MathExtension;
+import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
-import com.vladsch.flexmark.ext.figures.FiguresExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
-import com.vladsch.flexmark.ext.math.MathExtension;
-import com.vladsch.flexmark.ext.plantuml.PlantUmlExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -46,6 +47,13 @@ public class MarkdownParserAndHtmlRenderer {
         options.set(Parser.BLANK_LINES_IN_AST, false);
         options.set(SharedDataKeys.INDENT_SIZE, 2);
         options.set(SharedDataKeys.GENERATE_HEADER_ID, false);
+        
+        // use percent encoding in URLs, e.g. translate special characters like '<' in the target path of a link like
+        // [method](SomeClass.java#someMethod\(List\<String\>\))
+        // to '%3C' (not '&lt;') in a path like SomeClass.java#someMethod\(List%3CString%3E\)
+        // This way, we can ensure valid URLs.
+        // See docs: https://github.com/vsch/flexmark-java/wiki/Extensions#renderer
+        options.set(SharedDataKeys.PERCENT_ENCODE_URLS, true);
 
         options.set(HtmlRenderer.RENDER_HEADER_ID, true);
         options.set(HtmlRenderer.GENERATE_HEADER_ID, false);
@@ -80,7 +88,10 @@ public class MarkdownParserAndHtmlRenderer {
                 FiguresExtension.create(),
                 
                 // Advantest's extension for parsing and rendering math formulas
-                MathExtension.create()
+                MathExtension.create(),
+                
+             // Advantest's extension for parsing and rendering jira ticket numbers as links to the tickets
+                JiraTicketExtension.create()
         ));
 
         return options;

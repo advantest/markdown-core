@@ -16,27 +16,30 @@ import org.junit.jupiter.api.Test;
 
 import com.advantest.MarkdownCoreInfo;
 
-public class MarkdownCoreInfoTest {
+class MarkdownCoreInfoTest {
 	
 	@Test
-	public void testReadingProperties() {
+	void testReadingProperties() {
 		assertNotNull(MarkdownCoreInfo.getVersion());
 		assertNotNull(MarkdownCoreInfo.getPlantUmlVersion());
 		assertNotNull(MarkdownCoreInfo.getFlexmarkVersion());
+		assertNotNull(MarkdownCoreInfo.getFlexmarkExtensionsVersion());
 		assertFalse(MarkdownCoreInfo.getVersion().isBlank());
 		assertFalse(MarkdownCoreInfo.getPlantUmlVersion().isBlank());
 		assertFalse(MarkdownCoreInfo.getFlexmarkVersion().isBlank());
+		assertFalse(MarkdownCoreInfo.getFlexmarkExtensionsVersion().isBlank());
 		assertNotEquals("${project.version}", MarkdownCoreInfo.getVersion());
 		assertNotEquals("${flexmark-version}", MarkdownCoreInfo.getFlexmarkVersion());
+		assertNotEquals("${flexmark-extensions-version}", MarkdownCoreInfo.getFlexmarkVersion());
 	}
 	
 	@Test
-	public void testReadingSecurityProfile() {
+	void testReadingSecurityProfile() {
 		assertEquals("LEGACY", MarkdownCoreInfo.getPlantUmlSecurityProfile());
 	}
 	
 	@Test
-	public void testReadingUrlAllowList() {
+	void testReadingUrlAllowList() {
 		assertEquals("", MarkdownCoreInfo.getPlantUmlUrlAllowList());
 
 		String allowedUrls = "https://plantuml.com/;https://my.domain.com/some-path/";
@@ -46,7 +49,7 @@ public class MarkdownCoreInfoTest {
 	}
 	
 	@Test
-	public void testReadingGraphvizVersion() {
+	void testReadingGraphvizVersion() {
 		String version = MarkdownCoreInfo.getGraphvizVersion();
 		assertNotNull(version);
 		assertFalse(version.isBlank());
@@ -54,7 +57,7 @@ public class MarkdownCoreInfoTest {
 	}
 	
 	@Test
-	public void testReadingGraphvizExecutable() {
+	void testReadingGraphvizExecutable() {
 		String executable = MarkdownCoreInfo.getGraphvizExecutable();
 		assertNotNull(executable);
 		assertFalse(executable.isBlank());

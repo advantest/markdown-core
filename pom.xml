@@ -4,7 +4,7 @@
 
 	<groupId>com.advantest.markdown</groupId>
 	<artifactId>markdown-core</artifactId>
-	<version>1.0.10-20251110-1607</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
+	<version>1.0.11-SNAPSHOT</version> <!-- set to something like 1.0.2-20240821-1452 for releases -->
 
 	<name>Markdown parser and HTML generator</name>
 	<description>Markdown and PlantUML core features for parsing and HTML rendering</description>
@@ -14,13 +14,10 @@
 		<url>https://www.advantest.com/</url>
 	</organization>
 
-	<prerequisites>
-		<maven>3.0</maven>
-	</prerequisites>
-
 	<properties>
-		<flexmark-version>0.65.1-20251030-1701</flexmark-version>
-		<plantuml-version>1.2025.10</plantuml-version>
+		<flexmark-version>0.65.2-20260519-1651</flexmark-version>
+		<flexmark-extensions-version>1.0.0-20260521-0957</flexmark-extensions-version>
+		<plantuml-version>1.2026.3</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
 
@@ -35,6 +32,10 @@
 		<repository>
 			<id>github-packages-flexmark</id>
 			<url>https://maven.pkg.github.com/advantest/flexmark-java</url>
+		</repository>
+		<repository>
+			<id>github-packages-flexmark-extensions</id>
+			<url>https://maven.pkg.github.com/advantest/flexmark-extensions</url>
 		</repository>
 	</repositories>
 	
@@ -78,24 +79,6 @@
 		
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-plantuml</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-figures</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
-			<artifactId>flexmark-ext-math</artifactId>
-			<version>${flexmark-version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-ext-attributes</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
@@ -123,10 +106,33 @@
 			<artifactId>flexmark-ext-autolink</artifactId>
 			<version>${flexmark-version}</version>
 		</dependency>
+		
+		<!-- our custom extensions -->
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-plantuml</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-figures</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
 
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-math</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-jira-ticket-links</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
 
-
-
+		<!-- test dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>

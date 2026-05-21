@@ -21,11 +21,13 @@ public class MarkdownCoreInfo {
 	private static String version;
 	private static String plantUmlVersion;
 	private static String flexmarkVersion;
+	private static String flexmarkExtensionsVersion;
 	private static String graphvizVersion;
 	private static String graphvizExecutable;
 	
 	private static final String PROPERTY_MARKDOWN_CORE_VERSION = "markdownCoreVersion";
 	private static final String PROPERTY_FLEXMARK_VERSION = "flexmarkVersion";
+	private static final String PROPERTY_FLEXMARK_EXTENSIONS_VERSION = "flexmarkExtensionsVersion";
 	
 	static {
 		readProperties();
@@ -41,10 +43,12 @@ public class MarkdownCoreInfo {
 			version = null;
 			plantUmlVersion = null;
 			flexmarkVersion = null;
+			flexmarkExtensionsVersion = null;
 			throw new IllegalStateException(e);
 		}
 		version = myProperties.getProperty(PROPERTY_MARKDOWN_CORE_VERSION);
 		flexmarkVersion = myProperties.getProperty(PROPERTY_FLEXMARK_VERSION);
+		flexmarkExtensionsVersion = myProperties.getProperty(PROPERTY_FLEXMARK_EXTENSIONS_VERSION);
 		
 		plantUmlVersion = net.sourceforge.plantuml.version.Version.versionString();
 	}
@@ -76,6 +80,10 @@ public class MarkdownCoreInfo {
 	
 	public static String getFlexmarkVersion() {
 		return flexmarkVersion;
+	}
+	
+	public static String getFlexmarkExtensionsVersion() {
+		return flexmarkExtensionsVersion;
 	}
 
 	public static String getPlantUmlSecurityProfile() {

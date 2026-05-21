@@ -17,29 +17,29 @@ import org.junit.jupiter.api.Test;
 import com.advantest.markdown.MarkdownParserAndHtmlRenderer;
 
 
-public class MarkdownToHtmlRendererTest {
+class MarkdownToHtmlRendererTest {
 	
 	private static File markdownSourceFile;
 	private MarkdownParserAndHtmlRenderer renderer;
 	
 	@BeforeAll
-	public static void setUpBeforeAll() throws Exception {
+	static void setUpBeforeAll() {
 		String path = "src/test/resources/feature-overview.md";
 		markdownSourceFile = new File(path);
 	}
 	
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		renderer = new MarkdownParserAndHtmlRenderer();
 	}
 	
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		renderer = null;
 	}
 	
 	@Test
-	public void rendering_common_elements() throws Exception {
+	void rendering_common_elements() throws Exception {
 		String htmlSourceCode = renderer.renderHtml(renderer.parseMarkdown(markdownSourceFile));
 		
 		Assertions.assertNotNull(htmlSourceCode);
