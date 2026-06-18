@@ -303,7 +303,7 @@
 		</profile>
 
 		<profile>
-			<id>deploy-artifactory</id>
+			<id>deploy-advantest</id>
 			<build>
 				<plugins>
 					<plugin>
