@@ -2,7 +2,7 @@
  * This work is made available under the terms of the BSD 2-Clause "Simplified" License.
  * The BSD accompanies this distribution (LICENSE.txt).
  * 
- * Copyright © 2022-2024 Advantest Europe GmbH. All rights reserved.
+ * Copyright © 2022-2026 Advantest Europe GmbH. All rights reserved.
  */
 package com.advantest.markdown;
 
@@ -10,7 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import com.advantest.flexmark.ext.figures.FiguresExtension;
 import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
@@ -25,21 +28,80 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.data.DataKey;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import com.vladsch.flexmark.util.data.NullableDataKey;
 import com.vladsch.flexmark.util.data.SharedDataKeys;
+import com.vladsch.flexmark.util.misc.Extension;
 
 /**
  * Markdown source code parser and HTML renderer based on
  * <a href="https://github.com/vsch/flexmark-java">Flexmark</a>
  * with a selection of extensions.
+ * 
+ * <p>An instance with the default configuration can simply be created via {@link #MarkdownParserAndHtmlRenderer()}.
+ * If the default configuration has to be adapted, e.g. because additional flexmark extensions are needed or
+ * because option values have to be changed, then use {@link #builder()} instead:</p>
+ * 
+ * <pre>
+ * MarkdownParserAndHtmlRenderer renderer = MarkdownParserAndHtmlRenderer.builder()
+ *         .withExtension(MyExtension.create())
+ *         .withOption(JiraTicketExtension.JIRA_URL, "https://jira.example.com/browse/")
+ *         .build();
+ * </pre>
  */
 public class MarkdownParserAndHtmlRenderer {
-	
-	private final MutableDataSet options = createOptions();
+    
+    private final MutableDataSet options;
 
-    private final Parser markdownParser = createMarkdownParser();
+    private final Parser markdownParser;
 
-    private final HtmlRenderer htmlRenderer = createHtmlRenderer();
+    private final HtmlRenderer htmlRenderer;
+
+    /**
+     * Creates a new parser and renderer with the default configuration.
+     */
+    public MarkdownParserAndHtmlRenderer() {
+        this(Collections.emptyList());
+    }
+
+    /**
+     * Creates a new parser and renderer with the default configuration adapted by the given customizations.
+     * 
+     * <p>The customizations are applied <em>after</em> {@link #createOptions()} returned, in the order in which
+     * they appear in the given list. Hence, they always win over the default configuration and over any
+     * subclass' override of {@link #createOptions()}, and a later customization overrides an earlier one.</p>
+     * 
+     * @param customizations the customizations to be applied, must not be <code>null</code>, but may be empty
+     * @throws IllegalArgumentException if the given list is <code>null</code> or contains <code>null</code> entries
+     */
+    protected MarkdownParserAndHtmlRenderer(List<MarkdownCustomization> customizations) {
+        if (customizations == null) {
+            throw new IllegalArgumentException("The list of customizations must not be null.");
+        }
+        
+        MutableDataSet createdOptions = createOptions();
+        
+        for (MarkdownCustomization customization : customizations) {
+            if (customization == null) {
+                throw new IllegalArgumentException("The list of customizations must not contain null entries.");
+            }
+            customization.customize(createdOptions);
+        }
+        
+        this.options = createdOptions;
+        this.markdownParser = createMarkdownParser();
+        this.htmlRenderer = createHtmlRenderer();
+    }
+
+    /**
+     * Creates a new {@link Builder} for a customized {@link MarkdownParserAndHtmlRenderer}.
+     * 
+     * @return a new builder instance, never <code>null</code>
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
 
     protected MutableDataSet createOptions() {
         MutableDataSet options = new MutableDataSet();
@@ -98,7 +160,7 @@ public class MarkdownParserAndHtmlRenderer {
     }
     
     protected MutableDataSet getOptions() {
-    	return this.options;
+        return this.options;
     }
     
     private Parser createMarkdownParser() {
@@ -110,11 +172,11 @@ public class MarkdownParserAndHtmlRenderer {
     }
     
     protected Parser getMarkdownParser() {
-    	return this.markdownParser;
+        return this.markdownParser;
     }
     
     protected HtmlRenderer getHtmlRenderer() {
-    	return this.htmlRenderer;
+        return this.htmlRenderer;
     }
     
     /**
@@ -148,16 +210,16 @@ public class MarkdownParserAndHtmlRenderer {
      * @throws IllegalArgumentException if the given file is not a readable Markdown file with file extension .md
      */
     public Document parseMarkdown(File markdownFile) throws IOException {
-    	if (markdownFile == null || !markdownFile.canRead() || !"md".equals(getFileExtension(markdownFile))) {
-    		throw new IllegalArgumentException("Argument is not a readable Markdown file.");
-    	}
-   		String textFileContents = readTextFromFile(markdownFile);
-   		Document parsedDocument = this.markdownParser.parse(textFileContents);
-   		
-   		// Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
+        if (markdownFile == null || !markdownFile.canRead() || !"md".equals(getFileExtension(markdownFile))) {
+            throw new IllegalArgumentException("Argument is not a readable Markdown file.");
+        }
+        String textFileContents = readTextFromFile(markdownFile);
+        Document parsedDocument = this.markdownParser.parse(textFileContents);
+        
+        // Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
         parsedDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, markdownFile.getAbsolutePath());
-   		
-   		return parsedDocument;
+        
+        return parsedDocument;
     }
     
     /**
@@ -185,23 +247,144 @@ public class MarkdownParserAndHtmlRenderer {
     }
     
     protected String readTextFromFile(File textFile) throws IOException {
-		Path path = textFile.toPath();
-		byte[] bytes = Files.readAllBytes(path);
-		return new String(bytes);
-	}
+        Path path = textFile.toPath();
+        byte[] bytes = Files.readAllBytes(path);
+        return new String(bytes);
+    }
     
     protected String getFileExtension(File file) {
-    	if (file == null) {
-    		return null;
-    	}
-    	String fileName = file.getName();
-    	int indexOfLastDot = fileName.lastIndexOf(".");
-    	
-    	if (indexOfLastDot < 0 || indexOfLastDot + 1 >= fileName.length()) {
-    		return null;
-    	}
-    	
-    	return fileName.substring(indexOfLastDot + 1);
+        if (file == null) {
+            return null;
+        }
+        String fileName = file.getName();
+        int indexOfLastDot = fileName.lastIndexOf(".");
+        
+        if (indexOfLastDot < 0 || indexOfLastDot + 1 >= fileName.length()) {
+            return null;
+        }
+        
+        return fileName.substring(indexOfLastDot + 1);
+    }
+    
+    /**
+     * Builder for a customized {@link MarkdownParserAndHtmlRenderer}.
+     * 
+     * <p>All registered customizations &ndash; no matter whether they were registered as an extension,
+     * as an option value or as a {@link MarkdownCustomization} &ndash; are collected in one single ordered list
+     * and are applied in registration order. Therefore, a customization registered later always overrides
+     * a customization registered earlier as well as the default configuration.</p>
+     * 
+     * <p>Instances are created via {@link MarkdownParserAndHtmlRenderer#builder()}.</p>
+     */
+    public static final class Builder {
+        
+        private final List<MarkdownCustomization> customizations = new ArrayList<>();
+        
+        private Builder() {
+            // instances are created via MarkdownParserAndHtmlRenderer.builder()
+        }
+        
+        /**
+         * Registers an additional flexmark {@link Extension}.
+         * 
+         * <p>The given extension is <em>appended</em> to the extensions already registered in
+         * {@link Parser#EXTENSIONS}, i.e. neither the default extensions nor extensions registered
+         * earlier via this builder are removed.</p>
+         * 
+         * @param extension the flexmark extension to be added, must not be <code>null</code>
+         * @return this builder, for method chaining
+         * @throws IllegalArgumentException if the given extension is <code>null</code>
+         */
+        public Builder withExtension(Extension extension) {
+            if (extension == null) {
+                throw new IllegalArgumentException("The extension must not be null.");
+            }
+            
+            this.customizations.add(options -> {
+                List<Extension> allExtensions = new ArrayList<>(Parser.EXTENSIONS.get(options));
+                allExtensions.add(extension);
+                options.set(Parser.EXTENSIONS, allExtensions);
+            });
+            
+            return this;
+        }
+        
+        /**
+         * Sets a single flexmark option value, thereby overriding the default value of the given key.
+         * 
+         * @param <T> the type of the option's value
+         * @param key the flexmark data key to be set, must not be <code>null</code>
+         * @param value the value to be set, must not be <code>null</code>
+         * @return this builder, for method chaining
+         * @throws IllegalArgumentException if the given key or value is <code>null</code>
+         */
+        public <T> Builder withOption(DataKey<T> key, T value) {
+            if (key == null) {
+                throw new IllegalArgumentException("The option key must not be null.");
+            }
+            if (value == null) {
+                throw new IllegalArgumentException("The option value must not be null.");
+            }
+            
+            this.customizations.add(options -> options.set(key, value));
+            
+            return this;
+        }
+        
+        /**
+         * Sets a single flexmark option value, thereby overriding the default value of the given key.
+         * 
+         * <p>{@link NullableDataKey} is flexmark's key type for settings whose value may legitimately be
+         * <code>null</code>. Therefore, <code>null</code> values are permitted here, in contrast to
+         * {@link #withOption(DataKey, Object)}.</p>
+         * 
+         * @param <T> the type of the option's value
+         * @param key the flexmark data key to be set, must not be <code>null</code>
+         * @param value the value to be set, may be <code>null</code>
+         * @return this builder, for method chaining
+         * @throws IllegalArgumentException if the given key is <code>null</code>
+         */
+        public <T> Builder withOption(NullableDataKey<T> key, T value) {
+            if (key == null) {
+                throw new IllegalArgumentException("The option key must not be null.");
+            }
+            
+            this.customizations.add(options -> options.set(key, value));
+            
+            return this;
+        }
+        
+        /**
+         * Registers a generic {@link MarkdownCustomization}.
+         * 
+         * <p>This is the escape hatch for customizations that are contributed as objects, e.g. from an
+         * Eclipse plug-in extension point or as a Spring bean, and for customizations that need to add
+         * several extensions and option values at once.</p>
+         * 
+         * @param customization the customization to be applied, must not be <code>null</code>
+         * @return this builder, for method chaining
+         * @throws IllegalArgumentException if the given customization is <code>null</code>
+         */
+        public Builder withCustomization(MarkdownCustomization customization) {
+            if (customization == null) {
+                throw new IllegalArgumentException("The customization must not be null.");
+            }
+            
+            this.customizations.add(customization);
+            
+            return this;
+        }
+        
+        /**
+         * Creates a new {@link MarkdownParserAndHtmlRenderer} with all customizations registered
+         * at this builder applied.
+         * 
+         * @return the newly created parser and renderer, never <code>null</code>
+         */
+        public MarkdownParserAndHtmlRenderer build() {
+            return new MarkdownParserAndHtmlRenderer(this.customizations);
+        }
+        
     }
     
 }
