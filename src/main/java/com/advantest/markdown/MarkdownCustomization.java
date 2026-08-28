@@ -43,16 +43,16 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
  */
 @FunctionalInterface
 public interface MarkdownCustomization {
-    
-    /**
-     * Customizes the given flexmark options.
-     * 
-     * <p>The given options are already populated with all defaults of
-     * {@link MarkdownParserAndHtmlRenderer} and with the effects of all customizations
-     * registered before this one. Implementations modify the given options in place.</p>
-     * 
-     * @param options the flexmark options to be customized, never <code>null</code>
-     */
-    void customize(MutableDataSet options);
-    
+
+	/**
+	 * Customizes the given flexmark options.
+	 * 
+	 * <p>The given options are already populated with all defaults of
+	 * {@link MarkdownParserAndHtmlRenderer} and with the effects of all customizations
+	 * registered before this one. Implementations modify the given options in place.</p>
+	 * 
+	 * @param options the flexmark options to be customized, never <code>null</code>
+	 */
+	void customize(MutableDataSet options);
+
 }
