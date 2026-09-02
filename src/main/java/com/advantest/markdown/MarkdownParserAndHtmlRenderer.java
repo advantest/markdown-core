@@ -19,6 +19,9 @@ import com.advantest.flexmark.ext.figures.FiguresExtension;
 import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
 import com.advantest.flexmark.ext.math.MathExtension;
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
+import com.advantest.markdown.resources.LocalFileSystemResource;
+import com.advantest.markdown.resources.Resource;
+import com.advantest.markdown.resources.UnresolvedResource;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
@@ -51,6 +54,19 @@ import com.vladsch.flexmark.util.misc.Extension;
  * </pre>
  */
 public class MarkdownParserAndHtmlRenderer {
+
+	/**
+	 * The {@link Resource} of the parsed document itself, i.e. where the Markdown source code came
+	 * from. It is what all relative link targets inside that document are resolved against, see
+	 * {@link com.advantest.markdown.resources.ResourceResolver}.
+	 * 
+	 * <p>The value is written by {@link #parseMarkdown(String, Resource)} and by
+	 * {@link #parseMarkdown(File)}. Its default is {@link UnresolvedResource#UNKNOWN_DOCUMENT}, so
+	 * reading it never yields <code>null</code> and a document of unknown location needs no special
+	 * case: every relative link of such a document simply resolves to something not existing.</p>
+	 */
+	public static final DataKey<Resource> KEY_DOCUMENT_RESOURCE =
+			new DataKey<>("DOCUMENT_RESOURCE", UnresolvedResource.UNKNOWN_DOCUMENT);
 
 	private final MutableDataSet options;
 
@@ -183,18 +199,63 @@ public class MarkdownParserAndHtmlRenderer {
 	 * Reads the given Markdown source code and parses it, i.e. creates the source code's
 	 * abstract syntax tree representation, a so called {@link Document}.
 	 * 
-	 * <bold>Warning!</bold> This method does not know anything about file names,
-	 * what might be needed to resolve paths to referenced files.
-	 * If the source code has file references, then use {@link #parseMarkdown(File)} instead
-	 * or explicitly add path information to the parsed {@link Document} by
-	 * setting the variable {@link PlantUmlExtension#KEY_DOCUMENT_FILE_PATH} to the
-	 * parsed file's absolute path.
+	 * <bold>Warning!</bold> This method does not know where the source code came from,
+	 * what is needed to resolve relative paths to referenced files.
+	 * If the source code has file references, then use
+	 * {@link #parseMarkdown(String, Resource)} or {@link #parseMarkdown(File)} instead.
 	 * 
 	 * @param markdownSourceCode the Markdown source code to be parsed
 	 * @return the parsed abstract syntax tree's root, never <code>null</code>
 	 */
 	public Document parseMarkdown(String markdownSourceCode) {
 		return this.markdownParser.parse(markdownSourceCode);
+	}
+
+	/**
+	 * Reads the given Markdown source code and parses it, i.e. creates the source code's
+	 * abstract syntax tree representation, a so called {@link Document}, and remembers where that
+	 * source code came from, what is needed to resolve relative paths to referenced files.
+	 * 
+	 * <p>The given resource is created by the {@link com.advantest.markdown.resources.ResourceResolver}
+	 * of the environment this code runs in, and it is the same resolver that later resolves the
+	 * link targets found inside the parsed document.</p>
+	 * 
+	 * @param markdownSourceCode the Markdown source code to be parsed
+	 * @param documentResource the resource the source code came from, must not be <code>null</code>,
+	 *                         pass {@link UnresolvedResource#UNKNOWN_DOCUMENT} if it is unknown
+	 * @return the parsed abstract syntax tree's root, never <code>null</code>
+	 * @throws IllegalArgumentException if the given resource is <code>null</code>
+	 */
+	public Document parseMarkdown(String markdownSourceCode, Resource documentResource) {
+		Document parsedDocument = this.markdownParser.parse(markdownSourceCode);
+		setDocumentResource(parsedDocument, documentResource);
+		return parsedDocument;
+	}
+
+	/**
+	 * Remembers on the given parsed document where its source code came from.
+	 * 
+	 * <p>Use this only for documents that were parsed elsewhere, e.g. directly with flexmark.
+	 * Documents parsed by {@link #parseMarkdown(String, Resource)} or {@link #parseMarkdown(File)}
+	 * already know their resource.</p>
+	 * 
+	 * @param document the parsed document, must not be <code>null</code>
+	 * @param documentResource the resource the document's source code came from, must not be
+	 *                         <code>null</code>
+	 * @throws IllegalArgumentException if one of the arguments is <code>null</code>
+	 */
+	public static void setDocumentResource(Document document, Resource documentResource) {
+		if (document == null || documentResource == null) {
+			throw new IllegalArgumentException("Arguments must not be null.");
+		}
+
+		document.set(KEY_DOCUMENT_RESOURCE, documentResource);
+
+		if (!(documentResource instanceof UnresolvedResource)) {
+			// The PlantUML extension in flexmark still reads the document's path from its own key.
+			// Two flexmark data keys of the same name never share a value, hence both are written.
+			document.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, documentResource.resolvedPath());
+		}
 	}
 
 	/**
@@ -214,12 +275,8 @@ public class MarkdownParserAndHtmlRenderer {
 			throw new IllegalArgumentException("Argument is not a readable Markdown file.");
 		}
 		String textFileContents = readTextFromFile(markdownFile);
-		Document parsedDocument = this.markdownParser.parse(textFileContents);
 
-		// Set current file path. That's needed to resolve relative paths in PlantUML extension in flexmark.
-		parsedDocument.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, markdownFile.getAbsolutePath());
-
-		return parsedDocument;
+		return parseMarkdown(textFileContents, LocalFileSystemResource.of(markdownFile));
 	}
 
 	/**
@@ -244,6 +301,20 @@ public class MarkdownParserAndHtmlRenderer {
 	 */
 	public String parseMarkdownAndRenderHtml(String markdownSourceCode) {
 		return this.renderHtml(this.parseMarkdown(markdownSourceCode));
+	}
+
+	/**
+	 * Convenience method for parsing Markdown source code that came from the given resource
+	 * and then translating it to HTML.
+	 * 
+	 * @param markdownSourceCode the Markdown source code to be parsed and translated to HTML
+	 * @param documentResource the resource the source code came from, must not be <code>null</code>,
+	 *                         pass {@link UnresolvedResource#UNKNOWN_DOCUMENT} if it is unknown
+	 * @return the resulting HTML source code
+	 * @throws IllegalArgumentException if the given resource is <code>null</code>
+	 */
+	public String parseMarkdownAndRenderHtml(String markdownSourceCode, Resource documentResource) {
+		return this.renderHtml(this.parseMarkdown(markdownSourceCode, documentResource));
 	}
 
 	protected String readTextFromFile(File textFile) throws IOException {
