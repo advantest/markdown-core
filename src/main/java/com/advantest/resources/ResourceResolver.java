@@ -4,7 +4,7 @@
  * 
  * Copyright © 2026 Advantest Europe GmbH. All rights reserved.
  */
-package com.advantest.markdown.resources;
+package com.advantest.resources;
 
 /**
  * Resolves the target of a Markdown link against the document the link is written in.

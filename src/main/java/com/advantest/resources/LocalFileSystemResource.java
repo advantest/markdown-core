@@ -4,7 +4,7 @@
  * 
  * Copyright © 2026 Advantest Europe GmbH. All rights reserved.
  */
-package com.advantest.markdown.resources;
+package com.advantest.resources;
 
 import java.io.File;
 import java.nio.file.Files;
