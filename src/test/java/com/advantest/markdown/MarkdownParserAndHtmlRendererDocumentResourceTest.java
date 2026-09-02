@@ -111,6 +111,22 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 	}
 
 	@Test
+	void theResourceOfAParsedDocumentCanBeReadBack() {
+		Resource expectedResource = LocalFileSystemResource.of(this.markdownFile);
+		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN, expectedResource);
+
+		assertEquals(expectedResource, MarkdownParserAndHtmlRenderer.getDocumentResource(document));
+	}
+
+	@Test
+	void readingBackTheResourceOfADocumentOfUnknownOriginAnswersTheUnknownDocument() {
+		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN);
+
+		assertSame(UnresolvedResource.UNKNOWN_DOCUMENT,
+				MarkdownParserAndHtmlRenderer.getDocumentResource(document));
+	}
+
+	@Test
 	void rejectsAMissingResource() {
 		assertThrows(IllegalArgumentException.class, () -> this.parserAndRenderer.parseMarkdown(MARKDOWN, null));
 		assertThrows(IllegalArgumentException.class,
@@ -118,6 +134,8 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> MarkdownParserAndHtmlRenderer.setDocumentResource(null,
 						LocalFileSystemResource.of(this.markdownFile)));
+		assertThrows(IllegalArgumentException.class,
+				() -> MarkdownParserAndHtmlRenderer.getDocumentResource(null));
 	}
 
 }

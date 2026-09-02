@@ -261,6 +261,22 @@ public class MarkdownParserAndHtmlRenderer {
 	}
 
 	/**
+	 * Answers where the given parsed document's source code came from.
+	 * 
+	 * @param document the parsed document, must not be <code>null</code>
+	 * @return the resource the document's source code came from, never <code>null</code>,
+	 *         {@link UnresolvedResource#UNKNOWN_DOCUMENT} if the document does not know it
+	 * @throws IllegalArgumentException if the given document is <code>null</code>
+	 */
+	public static Resource getDocumentResource(Document document) {
+		if (document == null) {
+			throw new IllegalArgumentException("Argument must not be null.");
+		}
+
+		return KEY_DOCUMENT_RESOURCE.get(document);
+	}
+
+	/**
 	 * Reads the given Markdown source code and parses it, i.e. creates the source code's
 	 * abstract syntax tree representation, a so called {@link Document}.
 	 * Since this method gets a file, not just a string, it also considers the file's path,
