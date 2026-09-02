@@ -79,7 +79,7 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 				new UnresolvedResource("nowhere.md"));
 
 		assertEquals("nowhere.md",
-				MarkdownParserAndHtmlRenderer.KEY_DOCUMENT_RESOURCE.get(document).resolvedPath());
+				MarkdownParserAndHtmlRenderer.KEY_DOCUMENT_RESOURCE.get(document).getResolvedPath());
 		assertNull(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH.get(document));
 	}
 

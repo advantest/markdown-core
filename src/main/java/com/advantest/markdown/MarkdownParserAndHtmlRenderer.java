@@ -208,7 +208,9 @@ public class MarkdownParserAndHtmlRenderer {
 	 * @return the parsed abstract syntax tree's root, never <code>null</code>
 	 */
 	public Document parseMarkdown(String markdownSourceCode) {
-		return this.markdownParser.parse(markdownSourceCode);
+		Document parsedDocument = this.markdownParser.parse(markdownSourceCode);
+		setDocumentResource(parsedDocument, UnresolvedResource.UNKNOWN_DOCUMENT);
+		return parsedDocument;
 	}
 
 	/**
@@ -254,7 +256,7 @@ public class MarkdownParserAndHtmlRenderer {
 		if (!(documentResource instanceof UnresolvedResource)) {
 			// The PlantUML extension in flexmark still reads the document's path from its own key.
 			// Two flexmark data keys of the same name never share a value, hence both are written.
-			document.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, documentResource.resolvedPath());
+			document.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, documentResource.getResolvedPath());
 		}
 	}
 
