@@ -23,25 +23,25 @@ public final class UnresolvedResource implements Resource {
 	/** The resource of a document whose location is unknown. */
 	public static final UnresolvedResource UNKNOWN_DOCUMENT = new UnresolvedResource("");
 
-	private final String searchedFor;
+	private final String resourcePath;
 
 	/**
 	 * Creates a resource for a target that could not be resolved.
 	 * 
-	 * @param searchedFor what was searched for, e.g. the unresolvable link target, must not be
+	 * @param resourcePath the path that could not be resolved, e.g. an unresolvable link target, must not be
 	 *                    <code>null</code>
 	 * @throws IllegalArgumentException if the given argument is <code>null</code>
 	 */
-	public UnresolvedResource(String searchedFor) {
-		if (searchedFor == null) {
+	public UnresolvedResource(String resourcePath) {
+		if (resourcePath == null) {
 			throw new IllegalArgumentException("Argument must not be null.");
 		}
-		this.searchedFor = searchedFor;
+		this.resourcePath = resourcePath;
 	}
 
 	@Override
-	public String resolvedPath() {
-		return this.searchedFor;
+	public String getResolvedPath() {
+		return this.resourcePath;
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public final class UnresolvedResource implements Resource {
 	}
 
 	@Override
-	public Optional<ResourceKind> kind() {
+	public Optional<ResourceKind> getKind() {
 		return Optional.empty();
 	}
 
@@ -62,17 +62,17 @@ public final class UnresolvedResource implements Resource {
 		if (!(other instanceof UnresolvedResource)) {
 			return false;
 		}
-		return this.searchedFor.equals(((UnresolvedResource) other).searchedFor);
+		return this.resourcePath.equals(((UnresolvedResource) other).resourcePath);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.searchedFor);
+		return Objects.hash(this.resourcePath);
 	}
 
 	@Override
 	public String toString() {
-		return "unresolved: " + this.searchedFor;
+		return "unresolved: " + this.resourcePath;
 	}
 
 }

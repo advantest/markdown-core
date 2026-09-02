@@ -16,9 +16,9 @@ import java.util.Optional;
  * resource really is &ndash; a file of the local file system, a file in a version control system,
  * a document served over HTTP. Everything working on a parsed Markdown document therefore treats a
  * resource as opaque: it asks whether the resource exists, of which {@link ResourceKind} it is, and
- * how to name it in a message. No format of {@link #resolvedPath()} may be assumed.</p>
+ * how to name it in a message. No format of {@link #getResolvedPath()} may be assumed.</p>
  * 
- * <p>A resource is a description, not a snapshot. {@link #exists()} and {@link #kind()} answer for
+ * <p>A resource is a description, not a snapshot. {@link #exists()} and {@link #getKind()} answer for
  * the moment they are called.</p>
  * 
  * @see ResourceResolver
@@ -34,7 +34,7 @@ public interface Resource {
 	 * 
 	 * @return the resolved name of this resource, never <code>null</code>, possibly empty
 	 */
-	String resolvedPath();
+	String getResolvedPath();
 
 	/**
 	 * Tells whether this resource exists at the moment of the call.
@@ -49,7 +49,7 @@ public interface Resource {
 	 * @return the kind, or an empty {@link Optional} if this resource does not {@link #exists()} or
 	 *         if it is of no kind a Markdown link may point to
 	 */
-	Optional<ResourceKind> kind();
+	Optional<ResourceKind> getKind();
 
 	/**
 	 * Convenience test for {@link ResourceKind#FILE}.
@@ -57,7 +57,7 @@ public interface Resource {
 	 * @return <code>true</code> if and only if this resource currently is a file
 	 */
 	default boolean isFile() {
-		return kind().filter(ResourceKind.FILE::equals).isPresent();
+		return getKind().filter(ResourceKind.FILE::equals).isPresent();
 	}
 
 	/**
@@ -66,7 +66,7 @@ public interface Resource {
 	 * @return <code>true</code> if and only if this resource currently is a directory
 	 */
 	default boolean isDirectory() {
-		return kind().filter(ResourceKind.DIRECTORY::equals).isPresent();
+		return getKind().filter(ResourceKind.DIRECTORY::equals).isPresent();
 	}
 
 }

@@ -22,16 +22,16 @@ import java.nio.file.Paths;
 public final class LocalFileSystemResourceResolver implements ResourceResolver {
 
 	@Override
-	public Resource resolve(String linkTarget, Resource document) {
-		if (linkTarget == null || linkTarget.isBlank()) {
-			throw new IllegalArgumentException("Argument must be a non-blank link target.");
+	public Resource resolve(String resourcePath, Resource document) {
+		if (resourcePath == null || resourcePath.isBlank()) {
+			throw new IllegalArgumentException("Argument must be a non-blank resource path.");
 		}
 		if (document == null) {
 			throw new IllegalArgumentException("Argument must not be null.");
 		}
 
 		try {
-			Path target = Paths.get(linkTarget);
+			Path target = Paths.get(resourcePath);
 
 			if (target.isAbsolute()) {
 				return LocalFileSystemResource.of(target);
@@ -39,12 +39,12 @@ public final class LocalFileSystemResourceResolver implements ResourceResolver {
 
 			Path documentDirectory = directoryOf(document);
 			if (documentDirectory == null) {
-				return new UnresolvedResource(linkTarget);
+				return new UnresolvedResource(resourcePath);
 			}
 
 			return LocalFileSystemResource.of(documentDirectory.resolve(target));
 		} catch (InvalidPathException e) {
-			return new UnresolvedResource(linkTarget);
+			return new UnresolvedResource(resourcePath);
 		}
 	}
 
@@ -52,7 +52,7 @@ public final class LocalFileSystemResourceResolver implements ResourceResolver {
 		if (!(document instanceof LocalFileSystemResource)) {
 			return null;
 		}
-		Path documentPath = ((LocalFileSystemResource) document).path();
+		Path documentPath = ((LocalFileSystemResource) document).getResolvedFilePath();
 		return documentPath.getParent();
 	}
 

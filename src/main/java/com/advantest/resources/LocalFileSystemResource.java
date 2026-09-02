@@ -15,17 +15,17 @@ import java.util.Optional;
 /**
  * A {@link Resource} in the file system of the machine this code runs on.
  * 
- * <p>Its {@link #resolvedPath()} is the absolute file system path, i.e. what a user would type into
+ * <p>Its {@link #getResolvedPath()} is the absolute file system path, i.e. what a user would type into
  * a shell or a file dialog of the same machine.</p>
  * 
  * @see LocalFileSystemResourceResolver
  */
 public final class LocalFileSystemResource implements Resource {
 
-	private final Path path;
+	private final Path resolvedPath;
 
-	private LocalFileSystemResource(Path absoluteNormalizedPath) {
-		this.path = absoluteNormalizedPath;
+	private LocalFileSystemResource(Path resolvedPath) {
+		this.resolvedPath = resolvedPath;
 	}
 
 	/**
@@ -58,30 +58,31 @@ public final class LocalFileSystemResource implements Resource {
 	}
 
 	/**
-	 * Returns the absolute, normalized path of this resource.
+	 * Returns the resolved path of this resource as a path of the local file system, i.e.
+	 * {@link #getResolvedPath()} as a {@link Path}.
 	 * 
-	 * @return the path, never <code>null</code>
+	 * @return the absolute, normalized path, never <code>null</code>
 	 */
-	public Path path() {
-		return this.path;
+	public Path getResolvedFilePath() {
+		return this.resolvedPath;
 	}
 
 	@Override
-	public String resolvedPath() {
-		return this.path.toString();
+	public String getResolvedPath() {
+		return this.resolvedPath.toString();
 	}
 
 	@Override
 	public boolean exists() {
-		return Files.exists(this.path);
+		return Files.exists(this.resolvedPath);
 	}
 
 	@Override
-	public Optional<ResourceKind> kind() {
-		if (Files.isDirectory(this.path)) {
+	public Optional<ResourceKind> getKind() {
+		if (Files.isDirectory(this.resolvedPath)) {
 			return Optional.of(ResourceKind.DIRECTORY);
 		}
-		if (Files.isRegularFile(this.path)) {
+		if (Files.isRegularFile(this.resolvedPath)) {
 			return Optional.of(ResourceKind.FILE);
 		}
 		return Optional.empty();
@@ -95,17 +96,17 @@ public final class LocalFileSystemResource implements Resource {
 		if (!(other instanceof LocalFileSystemResource)) {
 			return false;
 		}
-		return this.path.equals(((LocalFileSystemResource) other).path);
+		return this.resolvedPath.equals(((LocalFileSystemResource) other).resolvedPath);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.path);
+		return Objects.hash(this.resolvedPath);
 	}
 
 	@Override
 	public String toString() {
-		return resolvedPath();
+		return getResolvedPath();
 	}
 
 }

@@ -50,8 +50,8 @@ class LocalFileSystemResourceResolverTest {
 		assertTrue(resolved.exists());
 		assertTrue(resolved.isFile());
 		assertFalse(resolved.isDirectory());
-		assertEquals(ResourceKind.FILE, resolved.kind().orElseThrow());
-		assertEquals(neighbour.toString(), resolved.resolvedPath());
+		assertEquals(ResourceKind.FILE, resolved.getKind().orElseThrow());
+		assertEquals(neighbour.toString(), resolved.getResolvedPath());
 	}
 
 	@Test
@@ -64,7 +64,7 @@ class LocalFileSystemResourceResolverTest {
 		assertTrue(resolved.exists());
 		assertTrue(resolved.isDirectory());
 		assertFalse(resolved.isFile());
-		assertEquals(directory.toString(), resolved.resolvedPath());
+		assertEquals(directory.toString(), resolved.getResolvedPath());
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class LocalFileSystemResourceResolverTest {
 		Resource resolved = this.resolver.resolve("../images/", this.document);
 
 		assertTrue(resolved.isDirectory());
-		assertEquals(directory.toString(), resolved.resolvedPath());
+		assertEquals(directory.toString(), resolved.getResolvedPath());
 	}
 
 	@Test
@@ -83,8 +83,8 @@ class LocalFileSystemResourceResolverTest {
 		Resource resolved = this.resolver.resolve("missing.md", this.document);
 
 		assertFalse(resolved.exists());
-		assertTrue(resolved.kind().isEmpty());
-		assertEquals(this.tempDir.resolve("docs").resolve("missing.md").toString(), resolved.resolvedPath());
+		assertTrue(resolved.getKind().isEmpty());
+		assertEquals(this.tempDir.resolve("docs").resolve("missing.md").toString(), resolved.getResolvedPath());
 	}
 
 	@Test
@@ -93,7 +93,7 @@ class LocalFileSystemResourceResolverTest {
 
 		Resource resolved = this.resolver.resolve(absoluteTarget.toString(), this.document);
 
-		assertEquals(absoluteTarget.toString(), resolved.resolvedPath());
+		assertEquals(absoluteTarget.toString(), resolved.getResolvedPath());
 	}
 
 	@Test
@@ -101,8 +101,8 @@ class LocalFileSystemResourceResolverTest {
 		Resource resolved = this.resolver.resolve("../../../../../../../../../../nowhere.md", this.document);
 
 		assertFalse(resolved.exists());
-		assertTrue(resolved.resolvedPath().endsWith("nowhere.md"));
-		assertFalse(resolved.resolvedPath().contains(".."));
+		assertTrue(resolved.getResolvedPath().endsWith("nowhere.md"));
+		assertFalse(resolved.getResolvedPath().contains(".."));
 	}
 
 	@Test
@@ -110,8 +110,8 @@ class LocalFileSystemResourceResolverTest {
 		Resource resolved = this.resolver.resolve("other.md", UnresolvedResource.UNKNOWN_DOCUMENT);
 
 		assertFalse(resolved.exists());
-		assertTrue(resolved.kind().isEmpty());
-		assertEquals("other.md", resolved.resolvedPath());
+		assertTrue(resolved.getKind().isEmpty());
+		assertEquals("other.md", resolved.getResolvedPath());
 		assertEquals(new UnresolvedResource("other.md"), resolved);
 	}
 
@@ -122,7 +122,7 @@ class LocalFileSystemResourceResolverTest {
 		Resource resolved = this.resolver.resolve("other.md", foreignDocument);
 
 		assertFalse(resolved.exists());
-		assertEquals("other.md", resolved.resolvedPath());
+		assertEquals("other.md", resolved.getResolvedPath());
 	}
 
 	@Test
@@ -142,7 +142,7 @@ class LocalFileSystemResourceResolverTest {
 
 		assertEquals(oneWay, anotherWay);
 		assertEquals(oneWay.hashCode(), anotherWay.hashCode());
-		assertEquals(oneWay.resolvedPath(), oneWay.toString());
+		assertEquals(oneWay.getResolvedPath(), oneWay.toString());
 	}
 
 }
