@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
-import com.advantest.markdown.resources.LocalFileSystemResource;
-import com.advantest.markdown.resources.Resource;
-import com.advantest.markdown.resources.UnresolvedResource;
+import com.advantest.resources.LocalFileSystemResource;
+import com.advantest.resources.Resource;
+import com.advantest.resources.UnresolvedResource;
 import com.vladsch.flexmark.util.ast.Document;
 
 /**

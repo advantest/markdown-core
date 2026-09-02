@@ -19,9 +19,9 @@ import com.advantest.flexmark.ext.figures.FiguresExtension;
 import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
 import com.advantest.flexmark.ext.math.MathExtension;
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
-import com.advantest.markdown.resources.LocalFileSystemResource;
-import com.advantest.markdown.resources.Resource;
-import com.advantest.markdown.resources.UnresolvedResource;
+import com.advantest.resources.LocalFileSystemResource;
+import com.advantest.resources.Resource;
+import com.advantest.resources.UnresolvedResource;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
@@ -58,7 +58,7 @@ public class MarkdownParserAndHtmlRenderer {
 	/**
 	 * The {@link Resource} of the parsed document itself, i.e. where the Markdown source code came
 	 * from. It is what all relative link targets inside that document are resolved against, see
-	 * {@link com.advantest.markdown.resources.ResourceResolver}.
+	 * {@link com.advantest.resources.ResourceResolver}.
 	 * 
 	 * <p>The value is written by {@link #parseMarkdown(String, Resource)} and by
 	 * {@link #parseMarkdown(File)}. Its default is {@link UnresolvedResource#UNKNOWN_DOCUMENT}, so
@@ -216,7 +216,7 @@ public class MarkdownParserAndHtmlRenderer {
 	 * abstract syntax tree representation, a so called {@link Document}, and remembers where that
 	 * source code came from, what is needed to resolve relative paths to referenced files.
 	 * 
-	 * <p>The given resource is created by the {@link com.advantest.markdown.resources.ResourceResolver}
+	 * <p>The given resource is created by the {@link com.advantest.resources.ResourceResolver}
 	 * of the environment this code runs in, and it is the same resolver that later resolves the
 	 * link targets found inside the parsed document.</p>
 	 * 

@@ -4,7 +4,7 @@
  * 
  * Copyright © 2026 Advantest Europe GmbH. All rights reserved.
  */
-package com.advantest.markdown.resources;
+package com.advantest.resources;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
