@@ -38,6 +38,10 @@ public class MarkdownCoreInfo {
 		Properties myProperties = new Properties();
 		try {
 			InputStream stream = MarkdownCoreInfo.class.getResourceAsStream("/settings.properties");
+			if (stream == null) {
+				throw new IllegalStateException("The settings of this library are missing:"
+						+ " there is no /settings.properties on the class path.");
+			}
 			myProperties.load(stream);
 		} catch (IOException e) {
 			version = null;
@@ -60,6 +64,12 @@ public class MarkdownCoreInfo {
 		
 		// Remove textual prefix in a string like "dot - graphviz version 12.1.2 (20240928.0832)"
 		String versionText = graphviz.dotVersion();
+		if (versionText == null) {
+			// Graphviz is not installed or does not say which version it is
+			graphvizVersion = "";
+			return;
+		}
+
 		Pattern versionPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\s\\([\\d\\.]*\\)");
 		Matcher versionMatcher = versionPattern.matcher(versionText);
 		if (versionMatcher.find()) {
