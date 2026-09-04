@@ -7,7 +7,7 @@
 package com.advantest.resources;
 
 /**
- * Resolves a path a document refers to, e.g. the target of a Markdown link or the file name of an
+ * Resolves what a document refers to, e.g. the target of a Markdown link or the file name of an
  * included PlantUML diagram, against the document it is written in.
  * 
  * <p>This is the one place where the environment enters: an Eclipse plug-in resolves against the
@@ -16,31 +16,38 @@ package com.advantest.resources;
  * the same implementation that created the {@link Resource} of the document itself, so no format of
  * a document location has to be agreed on anywhere.</p>
  * 
- * <p>A resolver is asked with a bare path, i.e. without a query string and without an anchor, and it
- * is not asked for web addresses.</p>
+ * <p>A resolver is asked with the reference exactly as it is written in the document, i.e. with its
+ * fragment and its query string still on it. Only the resolver knows the format of what it is
+ * asked, so only it can tell which parts of a reference name the resource and which parts name
+ * something inside it or say how to ask for it.</p>
+ * 
+ * <p>An implementation resolving a reference of one scheme rather than a reference of the
+ * environment this code runs in implements {@link UriResolver}.</p>
  * 
  * @see Resource
+ * @see UriResolver
  */
 @FunctionalInterface
 public interface ResourceResolver {
 
 	/**
-	 * Resolves the given resource path as it is seen from the given document.
+	 * Resolves the given reference as it is seen from the given document.
 	 * 
 	 * <p>Implementations never return <code>null</code> and never throw because a resource does not
-	 * exist, its path cannot be interpreted, or the document has no known location. Each of these is
+	 * exist, its reference cannot be interpreted, or the document has no known location. Each of these is
 	 * answered with a resource that does not {@link Resource#exists() exist} and that names the
-	 * unresolved path, so that a caller can report the problem where it belongs to.</p>
+	 * unresolved reference, so that a caller can report the problem where it belongs to.</p>
 	 * 
-	 * @param resourcePath the path to be resolved, usually relative to the given document,
-	 *                     must be neither <code>null</code> nor blank
-	 * @param document the resource of the document the path is written in, must not be
-	 *                 <code>null</code>; a document of unknown location is passed as
-	 *                 {@link UnresolvedResource#UNKNOWN_DOCUMENT}
+	 * @param targetResourcePathOrUri the reference to be resolved as it is written in the document,
+	 *                                usually relative to that document, must be neither
+	 *                                <code>null</code> nor blank
+	 * @param referencingDocument the resource of the document the reference is written in, must not
+	 *                            be <code>null</code>; a document of unknown location is passed as
+	 *                            {@link UnresolvedResource#UNKNOWN_DOCUMENT}
 	 * @return the resolved resource, never <code>null</code>
-	 * @throws IllegalArgumentException if the resource path is <code>null</code> or blank or if the
+	 * @throws IllegalArgumentException if the reference is <code>null</code> or blank or if the
 	 *                                  document is <code>null</code>
 	 */
-	Resource resolve(String resourcePath, Resource document);
+	Resource resolve(String targetResourcePathOrUri, Resource referencingDocument);
 
 }

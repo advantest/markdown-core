@@ -126,6 +126,25 @@ class LocalFileSystemResourceResolverTest {
 	}
 
 	@Test
+	void findsTheFileOfAReferenceNamingAPlaceInsideIt() throws IOException {
+		Path neighbour = this.tempDir.resolve("docs").resolve("other.md");
+		Files.writeString(neighbour, "# Other");
+
+		Resource resolved = this.resolver.resolve("other.md#a-section", this.document);
+
+		assertTrue(resolved.exists());
+		assertEquals(neighbour.toString(), resolved.getResolvedPath());
+	}
+
+	@Test
+	void resolvesNothingForAReferenceNamingAPlaceInTheDocumentItself() {
+		Resource resolved = this.resolver.resolve("#a-section", this.document);
+
+		assertFalse(resolved.exists());
+		assertEquals("#a-section", resolved.getResolvedPath());
+	}
+
+	@Test
 	void rejectsMissingArguments() {
 		assertThrows(IllegalArgumentException.class, () -> this.resolver.resolve(null, this.document));
 		assertThrows(IllegalArgumentException.class, () -> this.resolver.resolve("  ", this.document));

@@ -11,23 +11,33 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Resolves link targets in the file system of the machine this code runs on.
+ * Resolves references in the file system of the machine this code runs on.
  * 
- * <p>The resolver is stateless and has no root directory: a target is always resolved relative to
- * the document it is written in, i.e. relative to that document's directory. An absolute target is
- * taken as it is. Everything that cannot be resolved &ndash; a target that is no valid path of this
+ * <p>The resolver is stateless and has no root directory: a reference is always resolved relative to
+ * the document it is written in, i.e. relative to that document's directory. An absolute reference is
+ * taken as it is. Everything that cannot be resolved &ndash; a reference that is no valid path of this
  * file system, or a document without a known location &ndash; yields an
  * {@link UnresolvedResource}.</p>
+ * 
+ * <p>A reference is given as it is written, so it may carry a fragment naming a place inside the
+ * resource, e.g. <code>guide.md#introduction</code>. A file system knows nothing about places
+ * inside a file, so the fragment is cut off here and whoever asked keeps it to look for it.</p>
  */
 public final class LocalFileSystemResourceResolver implements ResourceResolver {
 
 	@Override
-	public Resource resolve(String resourcePath, Resource document) {
-		if (resourcePath == null || resourcePath.isBlank()) {
+	public Resource resolve(String targetResourcePathOrUri, Resource referencingDocument) {
+		if (targetResourcePathOrUri == null || targetResourcePathOrUri.isBlank()) {
 			throw new IllegalArgumentException("Argument must be a non-blank resource path.");
 		}
-		if (document == null) {
+		if (referencingDocument == null) {
 			throw new IllegalArgumentException("Argument must not be null.");
+		}
+
+		String resourcePath = withoutFragment(targetResourcePathOrUri);
+		if (resourcePath.isBlank()) {
+			// the reference names a place inside the document it is written in, not a resource
+			return new UnresolvedResource(targetResourcePathOrUri);
 		}
 
 		try {
@@ -37,7 +47,7 @@ public final class LocalFileSystemResourceResolver implements ResourceResolver {
 				return LocalFileSystemResource.of(target);
 			}
 
-			Path documentDirectory = directoryOf(document);
+			Path documentDirectory = directoryOf(referencingDocument);
 			if (documentDirectory == null) {
 				return new UnresolvedResource(resourcePath);
 			}
@@ -46,6 +56,17 @@ public final class LocalFileSystemResourceResolver implements ResourceResolver {
 		} catch (InvalidPathException e) {
 			return new UnresolvedResource(resourcePath);
 		}
+	}
+
+	/**
+	 * Cuts off the fragment of the given reference, i.e. everything from the first <code>#</code>
+	 * onwards.
+	 */
+	private static String withoutFragment(String targetResourcePathOrUri) {
+		int indexOfHashTag = targetResourcePathOrUri.indexOf('#');
+		return indexOfHashTag > -1
+				? targetResourcePathOrUri.substring(0, indexOfHashTag)
+				: targetResourcePathOrUri;
 	}
 
 	private Path directoryOf(Resource document) {
