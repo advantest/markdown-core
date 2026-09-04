@@ -24,7 +24,7 @@ public final class FileSchemeUriResolver implements UriResolver {
 
 	private static final String FILE_SCHEME = "file";
 
-	private final ResourceResolver localFileSystemResolver;
+	private final RelativePathResourceResolver pathResolver;
 
 	/**
 	 * Creates a resolver handing the path of a <code>file</code> URI to a resolver of the local
@@ -35,17 +35,20 @@ public final class FileSchemeUriResolver implements UriResolver {
 	}
 
 	/**
-	 * Creates a resolver handing the path of a <code>file</code> URI to the given resolver.
+	 * Creates a resolver handing the path of a <code>file</code> URI to the given resolver of a
+	 * path, which is the one resolver registered for a reference that names no scheme: a file
+	 * named with its scheme is the same file as the one named by its path, so the same resolver
+	 * answers for both.
 	 * 
-	 * @param localFileSystemResolver the resolver of the local file system, must not be
-	 *                                <code>null</code>
+	 * @param pathResolver the resolver of a reference without a scheme, must not be
+	 *                     <code>null</code>
 	 * @throws IllegalArgumentException if the given resolver is <code>null</code>
 	 */
-	public FileSchemeUriResolver(ResourceResolver localFileSystemResolver) {
-		if (localFileSystemResolver == null) {
+	public FileSchemeUriResolver(RelativePathResourceResolver pathResolver) {
+		if (pathResolver == null) {
 			throw new IllegalArgumentException("Argument must not be null.");
 		}
-		this.localFileSystemResolver = localFileSystemResolver;
+		this.pathResolver = pathResolver;
 	}
 
 	@Override
@@ -67,7 +70,7 @@ public final class FileSchemeUriResolver implements UriResolver {
 			return new UnresolvedResource(targetUri.toString());
 		}
 
-		return this.localFileSystemResolver.resolve(path, referencingDocument);
+		return this.pathResolver.resolve(path, referencingDocument);
 	}
 
 	/**
