@@ -21,10 +21,12 @@ package com.advantest.resources;
  * asked, so only it can tell which parts of a reference name the resource and which parts name
  * something inside it or say how to ask for it.</p>
  * 
- * <p>An implementation resolving a reference of one scheme rather than a reference of the
- * environment this code runs in implements {@link UriResolver}.</p>
+ * <p>An implementation does not implement this interface directly: one resolving a reference that
+ * names no scheme implements {@link RelativePathResourceResolver}, one resolving a reference of a
+ * scheme it claims implements {@link UriResolver}.</p>
  * 
  * @see Resource
+ * @see RelativePathResourceResolver
  * @see UriResolver
  */
 @FunctionalInterface

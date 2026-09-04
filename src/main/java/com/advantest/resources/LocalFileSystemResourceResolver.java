@@ -23,7 +23,7 @@ import java.nio.file.Paths;
  * resource, e.g. <code>guide.md#introduction</code>. A file system knows nothing about places
  * inside a file, so the fragment is cut off here and whoever asked keeps it to look for it.</p>
  */
-public final class LocalFileSystemResourceResolver implements ResourceResolver {
+public final class LocalFileSystemResourceResolver implements RelativePathResourceResolver {
 
 	@Override
 	public Resource resolve(String targetResourcePathOrUri, Resource referencingDocument) {
