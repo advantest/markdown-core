@@ -17,9 +17,9 @@ import java.io.File;
  * 
  * <p>The decision is read from the name, not from what a file contains: a caller asks before it
  * reads, and a target of a link is often not a file of this machine at all, so its name is all
- * there is. The comparison respects case, i.e. <code>guide.MD</code> is not a Markdown file, so
- * that the same name is answered the same way on a file system that distinguishes case and on one
- * that does not.</p>
+ * there is. How the extension is written does not matter, i.e. <code>guide.MD</code> is a Markdown
+ * file as much as <code>guide.md</code> is, because a file system that distinguishes case and one
+ * that does not would otherwise disagree about the same name.</p>
  */
 public final class MarkdownFileExtensions {
 
@@ -47,15 +47,15 @@ public final class MarkdownFileExtensions {
 	 * Tells whether the given path is named like a Markdown file.
 	 * 
 	 * <p>The path is taken as it is written, e.g. as it stands in the target of a link, and only
-	 * its extension is looked at. Whether anything is there under that path is a different
-	 * question and is not asked here.</p>
+	 * its extension is looked at, however that is written. Whether anything is there under that
+	 * path is a different question and is not asked here.</p>
 	 * 
 	 * @param path the path or file name to be decided about, may be <code>null</code>
 	 * @return <code>true</code> if it is not <code>null</code> and carries the
 	 *         {@link #FILE_EXTENSION Markdown file extension}
 	 */
 	public static boolean isMarkdownFile(String path) {
-		return FILE_EXTENSION.equals(getFileExtension(path));
+		return FILE_EXTENSION.equalsIgnoreCase(getFileExtension(path));
 	}
 
 	/**

@@ -44,9 +44,9 @@ class MarkdownFileExtensionsTest {
 	}
 
 	@Test
-	void refusesAnExtensionWrittenInAnotherCase() {
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("readme.MD"));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("readme.Md"));
+	void acceptsTheExtensionHoweverItIsWritten() {
+		assertTrue(MarkdownFileExtensions.isMarkdownFile("readme.MD"));
+		assertTrue(MarkdownFileExtensions.isMarkdownFile("readme.Md"));
 	}
 
 	@Test
