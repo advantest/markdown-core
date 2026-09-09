@@ -1,0 +1,108 @@
+/*
+ * This work is made available under the terms of the BSD 2-Clause "Simplified" License.
+ * The BSD accompanies this distribution (LICENSE.txt).
+ * 
+ * Copyright © 2026 Advantest Europe GmbH. All rights reserved.
+ */
+package com.advantest.resources;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+/**
+ * Tests for {@link Resource#readAllContents()}, the way a caller looks into a document it did not
+ * parse itself.
+ */
+class ResourceContentsTest {
+
+	@TempDir
+	private Path tempDir;
+
+	@Test
+	void readsTheTextOfAFile() throws IOException {
+		Path file = this.tempDir.resolve("readme.md");
+		Files.writeString(file, "# Title\n\nA paragraph.\n");
+
+		assertEquals("# Title\n\nA paragraph.\n", LocalFileSystemResource.of(file).readAllContents());
+	}
+
+	@Test
+	void readsAnEmptyFileAsAnEmptyText() throws IOException {
+		Path file = this.tempDir.resolve("empty.md");
+		Files.writeString(file, "");
+
+		assertEquals("", LocalFileSystemResource.of(file).readAllContents());
+	}
+
+	@Test
+	void readsTheBytesAsUtf8WhateverTheMachineWouldSay() throws IOException {
+		Path file = this.tempDir.resolve("umlauts.md");
+		Files.write(file, "# Überschrift mit Größe".getBytes(StandardCharsets.UTF_8));
+
+		assertEquals("# Überschrift mit Größe", LocalFileSystemResource.of(file).readAllContents());
+	}
+
+	@Test
+	void doesNotReadAFileThatIsNotThere() {
+		Resource resource = LocalFileSystemResource.of(this.tempDir.resolve("absent.md"));
+
+		assertThrows(IOException.class, resource::readAllContents);
+	}
+
+	@Test
+	void doesNotReadADirectoryAndSaysThatItIsOne() throws IOException {
+		Path directory = this.tempDir.resolve("images");
+		Files.createDirectories(directory);
+
+		Resource resource = LocalFileSystemResource.of(directory);
+
+		IOException failure = assertThrows(IOException.class, resource::readAllContents);
+		assertTrue(failure.getMessage().contains("is a directory"), failure.getMessage());
+		assertTrue(failure.getMessage().contains(directory.toString()), failure.getMessage());
+	}
+
+	@Test
+	void doesNotReadBytesThatAreNoText() throws IOException {
+		Path file = this.tempDir.resolve("picture.png");
+		Files.write(file, new byte[] { (byte) 0xC3, (byte) 0x28, (byte) 0xA0, (byte) 0xA1 });
+
+		Resource resource = LocalFileSystemResource.of(file);
+
+		assertThrows(IOException.class, resource::readAllContents);
+	}
+
+	@Test
+	void doesNotReadAResourceNobodyResolvedAndNamesWhatWasSearchedFor() {
+		Resource resource = new UnresolvedResource("../guide.md");
+
+		IOException failure = assertThrows(IOException.class, resource::readAllContents);
+		assertTrue(failure.getMessage().contains("../guide.md"), failure.getMessage());
+	}
+
+	@Test
+	void doesNotReadTheDocumentWhoseLocationIsUnknown() {
+		assertThrows(IOException.class, UnresolvedResource.UNKNOWN_DOCUMENT::readAllContents);
+	}
+
+	@Test
+	void readsTheSameFileTwiceAndSeesTheChangeInBetween() throws IOException {
+		Path file = this.tempDir.resolve("changing.md");
+		Files.writeString(file, "before");
+
+		Resource resource = LocalFileSystemResource.of(file);
+		assertEquals("before", resource.readAllContents());
+
+		Files.writeString(file, "after");
+		assertEquals("after", resource.readAllContents());
+	}
+
+}

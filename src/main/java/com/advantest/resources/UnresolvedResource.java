@@ -6,6 +6,7 @@
  */
 package com.advantest.resources;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -52,6 +53,18 @@ public final class UnresolvedResource implements Resource {
 	@Override
 	public Optional<ResourceKind> getKind() {
 		return Optional.empty();
+	}
+
+	/**
+	 * Fails, because a resource nobody resolved names nothing that could be read.
+	 * 
+	 * @return never
+	 * @throws IOException always, naming what was searched for
+	 */
+	@Override
+	public String readAllContents() throws IOException {
+		throw new IOException(String.format("'%s' could not be resolved and can therefore not be read.",
+				this.resourcePath));
 	}
 
 	@Override

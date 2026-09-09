@@ -7,6 +7,8 @@
 package com.advantest.resources;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -86,6 +88,25 @@ public final class LocalFileSystemResource implements Resource {
 			return Optional.of(ResourceKind.FILE);
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Reads the file this resource names, as text encoded in {@link StandardCharsets#UTF_8}.
+	 * 
+	 * <p>UTF-8 is not asked of the machine but decided here: the same document must read the same
+	 * way wherever this code runs, and a document written for a Markdown reader is written in UTF-8
+	 * today.</p>
+	 * 
+	 * @return the content of the file, never <code>null</code>, possibly empty
+	 * @throws IOException if there is no file at this path, if this resource is a directory, if the
+	 *                     file may not be read, or if its bytes are no UTF-8 encoded text
+	 */
+	@Override
+	public String readAllContents() throws IOException {
+		if (Files.isDirectory(this.resolvedPath)) {
+			throw new IOException(String.format("'%s' is a directory and holds no text.", getResolvedPath()));
+		}
+		return Files.readString(this.resolvedPath, StandardCharsets.UTF_8);
 	}
 
 	@Override
