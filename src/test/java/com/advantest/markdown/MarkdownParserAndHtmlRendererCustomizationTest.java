@@ -266,4 +266,40 @@ class MarkdownParserAndHtmlRendererCustomizationTest {
 		assertEquals("some value", NULLABLE_TEST_KEY.get(customizedRenderer.getOptions()));
 	}
 
+	@Test
+	void onlyTheMarkdownExtensionIsReadAsMarkdownByDefault() {
+		MarkdownFileExtensions markdownFileExtensions = new MarkdownParserAndHtmlRenderer().getMarkdownFileExtensions();
+
+		assertEquals(Set.of("md"), markdownFileExtensions.getAcceptedFileExtensions());
+		assertTrue(markdownFileExtensions.isMarkdownFile("readme.md"));
+		assertFalse(markdownFileExtensions.isMarkdownFile("readme.mdown"));
+	}
+
+	@Test
+	void aCallerSaysWhichFilesAreReadAsMarkdown() {
+		MarkdownParserAndHtmlRenderer customizedRenderer = MarkdownParserAndHtmlRenderer.builder()
+				.withMarkdownFileExtensions(MarkdownFileExtensions.accepting("md", "mdown", "mkd"))
+				.build();
+
+		assertTrue(customizedRenderer.getMarkdownFileExtensions().isMarkdownFile("readme.mdown"));
+		assertFalse(new MarkdownParserAndHtmlRenderer().getMarkdownFileExtensions().isMarkdownFile("readme.mdown"),
+				"A renderer built elsewhere must not be changed by that.");
+	}
+
+	@Test
+	void whichFilesAreMarkdownCanAlsoBeSetAsAnOption() {
+		MarkdownParserAndHtmlRenderer customizedRenderer = MarkdownParserAndHtmlRenderer.builder()
+				.withCustomization(options ->
+						options.set(MarkdownParserAndHtmlRenderer.KEY_MARKDOWN_FILE_EXTENSIONS, MarkdownFileExtensions.accepting("text")))
+				.build();
+
+		assertTrue(customizedRenderer.getMarkdownFileExtensions().isMarkdownFile("readme.text"));
+	}
+
+	@Test
+	void nothingIsReadAsMarkdownWithoutSayingWhat() {
+		assertThrows(IllegalArgumentException.class,
+				() -> MarkdownParserAndHtmlRenderer.builder().withMarkdownFileExtensions(null));
+	}
+
 }

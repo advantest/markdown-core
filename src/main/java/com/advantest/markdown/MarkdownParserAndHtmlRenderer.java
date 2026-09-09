@@ -68,6 +68,18 @@ public class MarkdownParserAndHtmlRenderer {
 	public static final DataKey<Resource> KEY_DOCUMENT_RESOURCE =
 			new DataKey<>("DOCUMENT_RESOURCE", UnresolvedResource.UNKNOWN_DOCUMENT);
 
+	/**
+	 * Which files are read as Markdown, see {@link MarkdownFileExtensions}.
+	 * 
+	 * <p>It is a configuration and not a property of one document, so it is set where the parser is
+	 * built, either with {@link Builder#withMarkdownFileExtensions(MarkdownFileExtensions)} or by a
+	 * {@link MarkdownCustomization}, and it is read from the parser's options rather than from a
+	 * parsed document. A tool knowing which files its users edit as Markdown says so here; the
+	 * default accepts <code>md</code>.</p>
+	 */
+	public static final DataKey<MarkdownFileExtensions> KEY_MARKDOWN_FILE_EXTENSIONS =
+			new DataKey<>("MARKDOWN_FILE_EXTENSIONS", MarkdownFileExtensions.DEFAULT);
+
 	private final MutableDataSet options;
 
 	private final Parser markdownParser;
@@ -283,18 +295,28 @@ public class MarkdownParserAndHtmlRenderer {
 	 * what is needed to resolve relative paths to other files (Markdown or PlantUML file)
 	 * referenced from the given source code.
 	 * 
-	 * @param markdownFile file to be parsed, must have file extension .md
+	 * @param markdownFile file to be parsed, must be readable and must be named like a
+	 *                     {@link #getMarkdownFileExtensions() Markdown file}
 	 * @return the parsed abstract syntax tree, never <code>null</code>
 	 * @throws IOException if reading the file fails
-	 * @throws IllegalArgumentException if the given file is not a readable Markdown file with file extension .md
+	 * @throws IllegalArgumentException if the given file is not a readable Markdown file
 	 */
 	public Document parseMarkdown(File markdownFile) throws IOException {
-		if (markdownFile == null || !markdownFile.canRead() || !MarkdownFileExtensions.isMarkdownFile(markdownFile)) {
+		if (markdownFile == null || !markdownFile.canRead() || !getMarkdownFileExtensions().isMarkdownFile(markdownFile)) {
 			throw new IllegalArgumentException("Argument is not a readable Markdown file.");
 		}
 		String textFileContents = readTextFromFile(markdownFile);
 
 		return parseMarkdown(textFileContents, LocalFileSystemResource.of(markdownFile));
+	}
+
+	/**
+	 * Tells which files this parser reads as Markdown.
+	 * 
+	 * @return what decides whether something is Markdown, never <code>null</code>
+	 */
+	public MarkdownFileExtensions getMarkdownFileExtensions() {
+		return KEY_MARKDOWN_FILE_EXTENSIONS.get(this.options);
 	}
 
 	/**
@@ -398,6 +420,29 @@ public class MarkdownParserAndHtmlRenderer {
 			});
 
 			return this;
+		}
+
+		/**
+		 * Says which files are read as Markdown, overriding the default that accepts
+		 * <code>md</code> alone.
+		 * 
+		 * <pre>
+		 * MarkdownParserAndHtmlRenderer renderer = MarkdownParserAndHtmlRenderer.builder()
+		 *         .withMarkdownFileExtensions(MarkdownFileExtensions.accepting("md", "mdown", "mkd"))
+		 *         .build();
+		 * </pre>
+		 * 
+		 * @param markdownFileExtensions what decides whether something is Markdown, must not be
+		 *                      <code>null</code>
+		 * @return this builder, for method chaining
+		 * @throws IllegalArgumentException if the given argument is <code>null</code>
+		 */
+		public Builder withMarkdownFileExtensions(MarkdownFileExtensions markdownFileExtensions) {
+			if (markdownFileExtensions == null) {
+				throw new IllegalArgumentException("The Markdown file extensions must not be null.");
+			}
+
+			return withOption(KEY_MARKDOWN_FILE_EXTENSIONS, markdownFileExtensions);
 		}
 
 		/**

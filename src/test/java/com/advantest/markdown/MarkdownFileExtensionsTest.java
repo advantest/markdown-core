@@ -9,9 +9,12 @@ package com.advantest.markdown;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,49 +25,94 @@ class MarkdownFileExtensionsTest {
 
 	@Test
 	void acceptsAFileNameCarryingTheMarkdownExtension() {
-		assertTrue(MarkdownFileExtensions.isMarkdownFile("readme.md"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readme.md"));
 	}
 
 	@Test
 	void acceptsAPathCarryingTheMarkdownExtension() {
-		assertTrue(MarkdownFileExtensions.isMarkdownFile("../docs/guide.md"));
-		assertTrue(MarkdownFileExtensions.isMarkdownFile("C:\\docs\\guide.md"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("../docs/guide.md"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("C:\\docs\\guide.md"));
 	}
 
 	@Test
 	void acceptsAFileCarryingTheMarkdownExtension() {
-		assertTrue(MarkdownFileExtensions.isMarkdownFile(new File("readme.md")));
-	}
-
-	@Test
-	void refusesAnotherExtension() {
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("readme.txt"));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("diagram.puml"));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("readme.markdown"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile(new File("readme.md")));
 	}
 
 	@Test
 	void acceptsTheExtensionHoweverItIsWritten() {
-		assertTrue(MarkdownFileExtensions.isMarkdownFile("readme.MD"));
-		assertTrue(MarkdownFileExtensions.isMarkdownFile("readme.Md"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readme.MD"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readme.Md"));
+	}
+
+	@Test
+	void refusesAnotherExtension() {
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readme.txt"));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("diagram.puml"));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readme.markdown"));
 	}
 
 	@Test
 	void refusesANameThatOnlyEndsWithTheExtensionsLetters() {
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("readme"));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("readmemd"));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("md"));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readme"));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("readmemd"));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("md"));
 	}
 
 	@Test
 	void refusesNothing() {
-		assertFalse(MarkdownFileExtensions.isMarkdownFile((String) null));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile((File) null));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile((String) null));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile((File) null));
+	}
+
+	@Test
+	void acceptsTheExtensionsACallerNames() {
+		MarkdownFileExtensions markdownFileExtensions = MarkdownFileExtensions.accepting("md", "mdown", "mkd");
+
+		assertTrue(markdownFileExtensions.isMarkdownFile("readme.md"));
+		assertTrue(markdownFileExtensions.isMarkdownFile("readme.mdown"));
+		assertTrue(markdownFileExtensions.isMarkdownFile("readme.MKD"));
+		assertFalse(markdownFileExtensions.isMarkdownFile("readme.txt"));
+	}
+
+	@Test
+	void refusesTheDefaultExtensionWhereACallerDidNotNameIt() {
+		assertFalse(MarkdownFileExtensions.accepting("mdown").isMarkdownFile("readme.md"));
+	}
+
+	@Test
+	void readsAnExtensionWithOrWithoutItsDotAndHoweverItIsWritten() {
+		assertEquals(Set.of("md"), MarkdownFileExtensions.accepting(".md").getAcceptedFileExtensions());
+		assertEquals(Set.of("md"), MarkdownFileExtensions.accepting("MD").getAcceptedFileExtensions());
+		assertEquals(Set.of("md"), MarkdownFileExtensions.accepting(" .Md ").getAcceptedFileExtensions());
+		assertEquals(Set.of("md", "mkd"), MarkdownFileExtensions.accepting("md", ".MKD").getAcceptedFileExtensions());
+	}
+
+	@Test
+	void refusesToAcceptNothing() {
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting());
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting((String[]) null));
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting(List.of()));
+	}
+
+	@Test
+	void refusesAnExtensionThatIsNoneAtAll() {
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting("md", ""));
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting("md", "  "));
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting("md", "."));
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting("md", (String) null));
+	}
+
+	@Test
+	void tellsWhichExtensionsAreAccepted() {
+		assertEquals(Set.of("md"), MarkdownFileExtensions.DEFAULT.getAcceptedFileExtensions());
+		assertEquals(Set.of("md", "mdown"), MarkdownFileExtensions.accepting("md", "mdown").getAcceptedFileExtensions());
 	}
 
 	@Test
 	void readsWhatFollowsTheLastDot() {
 		assertEquals("md", MarkdownFileExtensions.getFileExtension("readme.md"));
+		assertEquals("MD", MarkdownFileExtensions.getFileExtension("readme.MD"));
 		assertEquals("gz", MarkdownFileExtensions.getFileExtension("archive.tar.gz"));
 	}
 
@@ -86,8 +134,8 @@ class MarkdownFileExtensionsTest {
 	void doesNotMistakeADotOfADirectoryForAnExtension() {
 		assertNull(MarkdownFileExtensions.getFileExtension("../v1.0/guide"));
 		assertEquals("md", MarkdownFileExtensions.getFileExtension("../v1.0/guide.md"));
-		assertTrue(MarkdownFileExtensions.isMarkdownFile("../v1.0/guide.md"));
-		assertFalse(MarkdownFileExtensions.isMarkdownFile("../v1.md/guide"));
+		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("../v1.0/guide.md"));
+		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("../v1.md/guide"));
 	}
 
 }
