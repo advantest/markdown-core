@@ -6,6 +6,7 @@
  */
 package com.advantest.resources;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -91,22 +92,24 @@ public final class LocalFileSystemResource implements Resource {
 	}
 
 	/**
-	 * Reads the file this resource names, as text encoded in {@link StandardCharsets#UTF_8}.
+	 * Opens the file this resource names for reading, as text encoded in
+	 * {@link StandardCharsets#UTF_8}.
 	 * 
 	 * <p>UTF-8 is not asked of the machine but decided here: the same document must read the same
 	 * way wherever this code runs, and a document written for a Markdown reader is written in UTF-8
-	 * today.</p>
+	 * today. Bytes that are no UTF-8 encoded text are reported by the returned reader while it is
+	 * read, not here.</p>
 	 * 
-	 * @return the content of the file, never <code>null</code>, possibly empty
-	 * @throws IOException if there is no file at this path, if this resource is a directory, if the
-	 *                     file may not be read, or if its bytes are no UTF-8 encoded text
+	 * @return a reader of the file, never <code>null</code>, to be closed by the caller
+	 * @throws IOException if there is no file at this path, if this resource is a directory, or if
+	 *                     the file may not be read
 	 */
 	@Override
-	public String readAllContents() throws IOException {
+	public BufferedReader readContents() throws IOException {
 		if (Files.isDirectory(this.resolvedPath)) {
 			throw new IOException(String.format("'%s' is a directory and holds no text.", getResolvedPath()));
 		}
-		return Files.readString(this.resolvedPath, StandardCharsets.UTF_8);
+		return Files.newBufferedReader(this.resolvedPath, StandardCharsets.UTF_8);
 	}
 
 	@Override

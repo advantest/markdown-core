@@ -6,7 +6,9 @@
  */
 package com.advantest.resources;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Optional;
 
 /**
@@ -21,7 +23,7 @@ import java.util.Optional;
  * {@link #getResolvedPath()} may be assumed.</p>
  * 
  * <p>A resource is a description, not a snapshot. {@link #exists()}, {@link #getKind()} and
- * {@link #readAllContents()} answer for the moment they are called.</p>
+ * {@link #readContents()} answer for the moment they are called.</p>
  * 
  * @see ResourceResolver
  */
@@ -54,24 +56,47 @@ public interface Resource {
 	Optional<ResourceKind> getKind();
 
 	/**
-	 * Reads what this resource contains, as text.
+	 * Opens what this resource contains, as text, for reading it piece by piece.
 	 * 
 	 * <p>Only the {@link ResourceResolver} that created the resource knows where the content comes
 	 * from and how bytes become characters, so it is asked rather than told: a caller wanting to
 	 * look into a document it did not parse itself, e.g. to find an anchor a link points to, reads
 	 * it here instead of assuming that the resource is a file of the machine it runs on.</p>
 	 * 
-	 * <p>Reading is expensive and it may fail for reasons a caller cannot foresee, so the content is
-	 * read on every call and is not remembered. A resource that does not {@link #exists() exist},
-	 * one that is a {@link ResourceKind#DIRECTORY} and one that holds no text fail rather than
-	 * answering with an empty text: not knowing what a resource contains is different from knowing
-	 * that it contains nothing.</p>
+	 * <p>The reader is opened, not read, and the caller closes it &ndash; a resource read this way
+	 * may be arbitrarily large or may arrive over a network, and neither is worth holding in memory
+	 * as a whole. A caller that does want it as a whole asks {@link #readAllContents()}.</p>
 	 * 
-	 * @return what this resource contains, never <code>null</code>, possibly empty
+	 * <p>A resource that does not {@link #exists() exist}, one that is a {@link ResourceKind#DIRECTORY}
+	 * and one that holds no text fail rather than answering with an empty text: not knowing what a
+	 * resource contains is different from knowing that it contains nothing. A failure of the content
+	 * itself, e.g. bytes that are no text of the encoding the resolver reads, may as well be raised by
+	 * the returned reader rather than here.</p>
+	 * 
+	 * @return a reader of what this resource contains, never <code>null</code>, to be closed by the
+	 *         caller
 	 * @throws IOException if this resource cannot be read, among them the resource that is not
 	 *                     there, the one nobody resolved and the one that holds no text
 	 */
-	String readAllContents() throws IOException;
+	BufferedReader readContents() throws IOException;
+
+	/**
+	 * Reads everything this resource contains, as text.
+	 * 
+	 * <p>Nothing is remembered between two calls: reading answers for the moment of the call, as
+	 * {@link #exists()} and {@link #getKind()} do. A caller reading something it cannot bound, or
+	 * reading only the beginning of it, uses {@link #readContents()} instead.</p>
+	 * 
+	 * @return what this resource contains, never <code>null</code>, possibly empty
+	 * @throws IOException if this resource cannot be read, see {@link #readContents()}
+	 */
+	default String readAllContents() throws IOException {
+		try (BufferedReader reader = readContents()) {
+			StringWriter contents = new StringWriter();
+			reader.transferTo(contents);
+			return contents.toString();
+		}
+	}
 
 	/**
 	 * Convenience test for {@link ResourceKind#FILE}.
