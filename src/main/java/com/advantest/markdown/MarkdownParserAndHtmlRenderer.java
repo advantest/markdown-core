@@ -289,7 +289,7 @@ public class MarkdownParserAndHtmlRenderer {
 	 * @throws IllegalArgumentException if the given file is not a readable Markdown file with file extension .md
 	 */
 	public Document parseMarkdown(File markdownFile) throws IOException {
-		if (markdownFile == null || !markdownFile.canRead() || !"md".equals(getFileExtension(markdownFile))) {
+		if (markdownFile == null || !markdownFile.canRead() || !MarkdownFileExtensions.isMarkdownFile(markdownFile)) {
 			throw new IllegalArgumentException("Argument is not a readable Markdown file.");
 		}
 		String textFileContents = readTextFromFile(markdownFile);
@@ -341,18 +341,20 @@ public class MarkdownParserAndHtmlRenderer {
 		return new String(bytes);
 	}
 
+	/**
+	 * Reads the extension out of the given file's name.
+	 * 
+	 * @param file the file to be read, may be <code>null</code>
+	 * @return the extension without the separating dot, or <code>null</code> if the given file is
+	 *         <code>null</code> or has no extension
+	 * @see MarkdownFileExtensions#getFileExtension(String)
+	 */
 	protected String getFileExtension(File file) {
 		if (file == null) {
 			return null;
 		}
-		String fileName = file.getName();
-		int indexOfLastDot = fileName.lastIndexOf(".");
 
-		if (indexOfLastDot < 0 || indexOfLastDot + 1 >= fileName.length()) {
-			return null;
-		}
-
-		return fileName.substring(indexOfLastDot + 1);
+		return MarkdownFileExtensions.getFileExtension(file.getName());
 	}
 
 	/**
