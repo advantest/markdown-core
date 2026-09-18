@@ -10,6 +10,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Resolves a reference of the <code>file</code> scheme, e.g.
  * <code>file:///home/user/docs/guide.md</code>, in the file system of the machine this code runs
@@ -21,6 +24,8 @@ import java.nio.file.Path;
  * {@link LocalFileSystemResourceResolver}.</p>
  */
 public final class FileSchemeUriResolver implements UriResolver {
+
+	private static final Logger LOG = LoggerFactory.getLogger(FileSchemeUriResolver.class);
 
 	private static final String FILE_SCHEME = "file";
 
@@ -87,6 +92,8 @@ public final class FileSchemeUriResolver implements UriResolver {
 		try {
 			return Path.of(withoutFragment).toString();
 		} catch (RuntimeException exception) {
+			LOG.debug("The address {} names nothing this file system can read as a path, so its path"
+					+ " is taken as it is written.", targetUri, exception);
 			return withoutFragment.getPath() != null
 					? withoutFragment.getPath()
 					: withoutFragment.getSchemeSpecificPart();
@@ -105,6 +112,8 @@ public final class FileSchemeUriResolver implements UriResolver {
 		try {
 			return new URI(targetUri.getScheme(), targetUri.getSchemeSpecificPart(), null);
 		} catch (URISyntaxException exception) {
+			LOG.debug("The fragment cannot be taken off the address {}, so it is read as it is,"
+					+ " fragment and all.", targetUri, exception);
 			return targetUri;
 		}
 	}

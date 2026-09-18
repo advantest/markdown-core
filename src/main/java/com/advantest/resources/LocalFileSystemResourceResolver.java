@@ -10,6 +10,9 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Resolves references in the file system of the machine this code runs on.
  * 
@@ -24,6 +27,8 @@ import java.nio.file.Paths;
  * inside a file, so the fragment is cut off here and whoever asked keeps it to look for it.</p>
  */
 public final class LocalFileSystemResourceResolver implements RelativePathResourceResolver {
+
+	private static final Logger LOG = LoggerFactory.getLogger(LocalFileSystemResourceResolver.class);
 
 	@Override
 	public Resource resolve(String targetResourcePathOrUri, Resource referencingDocument) {
@@ -54,6 +59,8 @@ public final class LocalFileSystemResourceResolver implements RelativePathResour
 
 			return LocalFileSystemResource.of(documentDirectory.resolve(target));
 		} catch (InvalidPathException e) {
+			LOG.debug("The reference '{}' is no path this file system can read, so it stays"
+					+ " unresolved.", resourcePath, e);
 			return new UnresolvedResource(resourcePath);
 		}
 	}

@@ -8,6 +8,8 @@ package com.advantest.resources;
 
 import java.net.URI;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Resolves references that name their scheme, e.g. <code>https://example.org/guide</code> or
  * <code>file:/home/user/guide.md</code>.
@@ -70,6 +72,11 @@ public interface UriResolver extends ResourceResolver {
 		try {
 			targetUri = URI.create(targetResourcePathOrUri);
 		} catch (IllegalArgumentException exception) {
+			// the logger is fetched here rather than held in a constant: a field of an interface is
+			// public, and this is the only place in it that says anything, on a branch that is rare
+			LoggerFactory.getLogger(UriResolver.class).debug(
+					"The reference '{}' is no valid URI, so no resolver of a scheme is asked about it.",
+					targetResourcePathOrUri, exception);
 			return new UnresolvedResource(targetResourcePathOrUri);
 		}
 
