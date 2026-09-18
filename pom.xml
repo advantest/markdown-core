@@ -20,6 +20,7 @@
 		<plantuml-version>1.2026.3</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
+		<slf4j-version>2.0.18</slf4j-version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -132,11 +133,34 @@
 			<version>${flexmark-extensions-version}</version>
 		</dependency>
 
+		<!--
+			The logging API alone, never a binding. A library that picks where its lines go decides
+			that for the program embedding it, and that is not this library's decision to make.
+			Whoever composes it puts a binding on the class path; without one the lines are dropped
+			and nothing else changes.
+		-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-version}</version>
+		</dependency>
+
 		<!-- test dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!--
+			A binding for the tests alone, so that one test can prove a line written here really
+			arrives at a sink instead of being believed to.
+		-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j-version}</version>
 			<scope>test</scope>
 		</dependency>
 		
