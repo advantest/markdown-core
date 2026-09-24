@@ -7,7 +7,6 @@
 package com.advantest.markdown;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
 import com.advantest.resources.LocalFileSystemResource;
 import com.advantest.resources.Resource;
 import com.advantest.resources.UnresolvedResource;
@@ -53,7 +51,6 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 		Resource resource = MarkdownParserAndHtmlRenderer.KEY_DOCUMENT_RESOURCE.get(document);
 
 		assertSame(UnresolvedResource.UNKNOWN_DOCUMENT, resource);
-		assertNull(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH.get(document));
 	}
 
 	@Test
@@ -66,21 +63,12 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 	}
 
 	@Test
-	void aParsedDocumentAlsoFeedsTheLegacyFilePathKey() {
-		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN,
-				LocalFileSystemResource.of(this.markdownFile));
-
-		assertEquals(this.markdownFile.toString(), PlantUmlExtension.KEY_DOCUMENT_FILE_PATH.get(document));
-	}
-
-	@Test
-	void anUnresolvedOriginDoesNotFeedTheLegacyFilePathKey() {
+	void anUnresolvedOriginKeepsWhatWasSearchedFor() {
 		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN,
 				new UnresolvedResource("nowhere.md"));
 
 		assertEquals("nowhere.md",
 				MarkdownParserAndHtmlRenderer.KEY_DOCUMENT_RESOURCE.get(document).getResolvedPath());
-		assertNull(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH.get(document));
 	}
 
 	@Test
@@ -89,7 +77,6 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 
 		assertEquals(LocalFileSystemResource.of(this.markdownFile),
 				MarkdownParserAndHtmlRenderer.KEY_DOCUMENT_RESOURCE.get(document));
-		assertEquals(this.markdownFile.toString(), PlantUmlExtension.KEY_DOCUMENT_FILE_PATH.get(document));
 	}
 
 	@Test

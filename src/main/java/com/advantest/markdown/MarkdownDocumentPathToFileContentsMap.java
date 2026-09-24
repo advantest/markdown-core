@@ -1,0 +1,113 @@
+/*
+ * This work is made available under the terms of the BSD 2-Clause "Simplified" License.
+ * The BSD accompanies this distribution (LICENSE.txt).
+ * 
+ * Copyright © 2026 Advantest Europe GmbH. All rights reserved.
+ */
+package com.advantest.markdown;
+
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.advantest.resources.RelativePathResourceResolver;
+import com.advantest.resources.Resource;
+
+/**
+ * The text of everything a document refers to, read when it is asked for.
+ * 
+ * <p>A renderer working on a parsed document asks for a target the way it is written in that
+ * document, e.g. <code>diagrams/classes.puml</code>, and is answered with the text behind it. The
+ * target is resolved against the resource the document came from and read through that resource, so
+ * a document of the local file system, one of a repository and one served over a network are all
+ * answered the same way and none of them is read here.</p>
+ * 
+ * <p>Nothing is read before it is asked for: a document that is only parsed or validated reads
+ * nothing at all, and a target asked for twice is read once. A target that cannot be resolved or
+ * cannot be read is answered with <code>null</code>, which is how a caller says that it has no
+ * text, and the reason is logged rather than thrown &ndash; whoever renders a reference decides
+ * what to show in its place.</p>
+ * 
+ * <p>What is {@link #put(String, String) put in} wins over reading. A caller that already knows the
+ * text of a target, or that hands over text it produced itself rather than the text of a file, says
+ * so this way and is never read behind its back. This map therefore answers about targets, not
+ * about what it holds: {@link #size()}, {@link #containsKey(Object)} and iteration see what was put
+ * in and what was read so far, never what could still be read.</p>
+ */
+final class MarkdownDocumentPathToFileContentsMap extends AbstractMap<String, String> {
+
+	private static final Logger LOG = LoggerFactory.getLogger(MarkdownDocumentPathToFileContentsMap.class);
+
+	private final Resource documentResource;
+
+	private final RelativePathResourceResolver resolver;
+
+	private final Map<String, Resource> resourcesByTarget;
+
+	private final Map<String, String> contentsByTarget = new ConcurrentHashMap<>();
+
+	/**
+	 * Creates the contents of everything the document of the given resource refers to.
+	 * 
+	 * @param documentResource the resource the document came from, must not be <code>null</code>
+	 * @param resolver what turns a target written in that document into a resource, must not be
+	 *                 <code>null</code>
+	 * @param resourcesByTarget where a resolved target is remembered, must not be <code>null</code>
+	 * @throws IllegalArgumentException if one of the arguments is <code>null</code>
+	 */
+	MarkdownDocumentPathToFileContentsMap(Resource documentResource, RelativePathResourceResolver resolver,
+			Map<String, Resource> resourcesByTarget) {
+		if (documentResource == null || resolver == null || resourcesByTarget == null) {
+			throw new IllegalArgumentException("Arguments must not be null.");
+		}
+
+		this.documentResource = documentResource;
+		this.resolver = resolver;
+		this.resourcesByTarget = resourcesByTarget;
+	}
+
+	@Override
+	public String get(Object target) {
+		if (!(target instanceof String targetPath) || targetPath.isBlank()) {
+			return null;
+		}
+
+		String knownContents = this.contentsByTarget.get(targetPath);
+		if (knownContents != null) {
+			return knownContents;
+		}
+
+		Resource resource = this.resourcesByTarget.computeIfAbsent(targetPath,
+				path -> this.resolver.resolve(path, this.documentResource));
+
+		try {
+			String contents = resource.readAllContents();
+			this.contentsByTarget.put(targetPath, contents);
+			return contents;
+		} catch (IOException failure) {
+			LOG.debug("The document {} refers to {}, which cannot be read, so nothing is answered"
+					+ " for it.", this.documentResource.getResolvedPath(), targetPath, failure);
+			return null;
+		}
+	}
+
+	@Override
+	public String put(String target, String contents) {
+		if (target == null || contents == null) {
+			throw new IllegalArgumentException("Arguments must not be null.");
+		}
+
+		return this.contentsByTarget.put(target, contents);
+	}
+
+	@Override
+	public Set<Entry<String, String>> entrySet() {
+		return this.contentsByTarget.entrySet();
+	}
+
+}

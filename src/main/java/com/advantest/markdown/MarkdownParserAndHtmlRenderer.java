@@ -14,12 +14,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.advantest.flexmark.ext.figures.FiguresExtension;
 import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
 import com.advantest.flexmark.ext.math.MathExtension;
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
 import com.advantest.resources.LocalFileSystemResource;
+import com.advantest.resources.LocalFileSystemResourceResolver;
+import com.advantest.resources.RelativePathResourceResolver;
 import com.advantest.resources.Resource;
 import com.advantest.resources.UnresolvedResource;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
@@ -67,6 +71,32 @@ public class MarkdownParserAndHtmlRenderer {
 	 */
 	public static final DataKey<Resource> KEY_DOCUMENT_RESOURCE =
 			new DataKey<>("DOCUMENT_RESOURCE", UnresolvedResource.UNKNOWN_DOCUMENT);
+
+	/**
+	 * What a parsed document refers to: a target as it is written in that document, e.g.
+	 * <code>diagrams/classes.puml</code>, mapped to the {@link Resource} it names.
+	 * 
+	 * <p>The map is written by {@link #setDocumentResource(Document, Resource)} and filled while
+	 * the document is rendered: a target asked for the first time is resolved against
+	 * {@link #KEY_DOCUMENT_RESOURCE} and remembered here. A caller knowing a resource beforehand
+	 * may put it in itself, and it is then used instead of resolving the target.</p>
+	 */
+	public static final DataKey<Map<String, Resource>> KEY_DOCUMENT_REFERENCED_RESOURCES =
+			new DataKey<>("DOCUMENT_REFERENCED_RESOURCES", Collections.emptyMap());
+
+	/**
+	 * What turns a target written in a document into a {@link Resource}, see
+	 * {@link RelativePathResourceResolver}.
+	 * 
+	 * <p>It is a configuration and not a property of one document, so it is set where the parser is
+	 * built, either with {@link Builder#withRelativePathResourceResolver(RelativePathResourceResolver)}
+	 * or by a {@link MarkdownCustomization}. The default reads the local file system, so a document
+	 * of this machine renders a diagram it refers to without anything being configured; a tool
+	 * whose documents live elsewhere says so here, and then the same resolver answers for
+	 * everything that document refers to.</p>
+	 */
+	public static final DataKey<RelativePathResourceResolver> KEY_RELATIVE_PATH_RESOURCE_RESOLVER =
+			new DataKey<>("RELATIVE_PATH_RESOURCE_RESOLVER", new LocalFileSystemResourceResolver());
 
 	/**
 	 * Which files are read as Markdown, see {@link MarkdownFileExtensions}.
@@ -253,6 +283,12 @@ public class MarkdownParserAndHtmlRenderer {
 	 * Documents parsed by {@link #parseMarkdown(String, Resource)} or {@link #parseMarkdown(File)}
 	 * already know their resource.</p>
 	 * 
+	 * <p>It also prepares what the document refers to: an empty
+	 * {@link #KEY_DOCUMENT_REFERENCED_RESOURCES map of targets to resources}, and the text of those
+	 * targets, read from them while the document is rendered. A renderer asking for a target it
+	 * found in the document is therefore answered without knowing where the document lives, and
+	 * nothing is read for a document that is never rendered.</p>
+	 * 
 	 * @param document the parsed document, must not be <code>null</code>
 	 * @param documentResource the resource the document's source code came from, must not be
 	 *                         <code>null</code>
@@ -265,11 +301,11 @@ public class MarkdownParserAndHtmlRenderer {
 
 		document.set(KEY_DOCUMENT_RESOURCE, documentResource);
 
-		if (!(documentResource instanceof UnresolvedResource)) {
-			// The PlantUML extension in flexmark still reads the document's path from its own key.
-			// Two flexmark data keys of the same name never share a value, hence both are written.
-			document.set(PlantUmlExtension.KEY_DOCUMENT_FILE_PATH, documentResource.getResolvedPath());
-		}
+		Map<String, Resource> referencedResources = new ConcurrentHashMap<>();
+		document.set(KEY_DOCUMENT_REFERENCED_RESOURCES, referencedResources);
+		document.set(PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP,
+				new MarkdownDocumentPathToFileContentsMap(documentResource,
+						KEY_RELATIVE_PATH_RESOURCE_RESOLVER.get(document), referencedResources));
 	}
 
 	/**
@@ -443,6 +479,29 @@ public class MarkdownParserAndHtmlRenderer {
 			}
 
 			return withOption(KEY_MARKDOWN_FILE_EXTENSIONS, markdownFileExtensions);
+		}
+
+		/**
+		 * Says what turns a target written in a document into a {@link Resource}, overriding the
+		 * default that reads the local file system.
+		 * 
+		 * <pre>
+		 * MarkdownParserAndHtmlRenderer renderer = MarkdownParserAndHtmlRenderer.builder()
+		 *         .withRelativePathResourceResolver(new ResolverOfMyRepository())
+		 *         .build();
+		 * </pre>
+		 * 
+		 * @param resolver what resolves a target relative to the document it is written in, must
+		 *                 not be <code>null</code>
+		 * @return this builder, for method chaining
+		 * @throws IllegalArgumentException if the given argument is <code>null</code>
+		 */
+		public Builder withRelativePathResourceResolver(RelativePathResourceResolver resolver) {
+			if (resolver == null) {
+				throw new IllegalArgumentException("The resource resolver must not be null.");
+			}
+
+			return withOption(KEY_RELATIVE_PATH_RESOURCE_RESOLVER, resolver);
 		}
 
 		/**
