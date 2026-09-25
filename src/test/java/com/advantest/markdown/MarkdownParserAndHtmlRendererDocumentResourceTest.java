@@ -84,7 +84,7 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN);
 		Resource expectedResource = LocalFileSystemResource.of(this.markdownFile);
 
-		MarkdownParserAndHtmlRenderer.setDocumentResource(document, expectedResource);
+		this.parserAndRenderer.setDocumentResource(document, expectedResource);
 
 		assertEquals(expectedResource, MarkdownParserAndHtmlRenderer.KEY_DOCUMENT_RESOURCE.get(document));
 	}
@@ -102,7 +102,7 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 		Resource expectedResource = LocalFileSystemResource.of(this.markdownFile);
 		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN, expectedResource);
 
-		assertEquals(expectedResource, MarkdownParserAndHtmlRenderer.getDocumentResource(document));
+		assertEquals(expectedResource, this.parserAndRenderer.getDocumentResource(document));
 	}
 
 	@Test
@@ -110,7 +110,7 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 		Document document = this.parserAndRenderer.parseMarkdown(MARKDOWN);
 
 		assertSame(UnresolvedResource.UNKNOWN_DOCUMENT,
-				MarkdownParserAndHtmlRenderer.getDocumentResource(document));
+				this.parserAndRenderer.getDocumentResource(document));
 	}
 
 	@Test
@@ -119,10 +119,10 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> this.parserAndRenderer.parseMarkdownAndRenderHtml(MARKDOWN, null));
 		assertThrows(IllegalArgumentException.class,
-				() -> MarkdownParserAndHtmlRenderer.setDocumentResource(null,
+				() -> this.parserAndRenderer.setDocumentResource(null,
 						LocalFileSystemResource.of(this.markdownFile)));
 		assertThrows(IllegalArgumentException.class,
-				() -> MarkdownParserAndHtmlRenderer.getDocumentResource(null));
+				() -> this.parserAndRenderer.getDocumentResource(null));
 	}
 
 }

@@ -294,7 +294,7 @@ public class MarkdownParserAndHtmlRenderer {
 	 *                         <code>null</code>
 	 * @throws IllegalArgumentException if one of the arguments is <code>null</code>
 	 */
-	public static void setDocumentResource(Document document, Resource documentResource) {
+	public void setDocumentResource(Document document, Resource documentResource) {
 		if (document == null || documentResource == null) {
 			throw new IllegalArgumentException("Arguments must not be null.");
 		}
@@ -316,7 +316,7 @@ public class MarkdownParserAndHtmlRenderer {
 	 *         {@link UnresolvedResource#UNKNOWN_DOCUMENT} if the document does not know it
 	 * @throws IllegalArgumentException if the given document is <code>null</code>
 	 */
-	public static Resource getDocumentResource(Document document) {
+	public Resource getDocumentResource(Document document) {
 		if (document == null) {
 			throw new IllegalArgumentException("Argument must not be null.");
 		}
