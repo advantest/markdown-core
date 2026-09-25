@@ -85,20 +85,6 @@ public class MarkdownParserAndHtmlRenderer {
 			new DataKey<>("DOCUMENT_REFERENCED_RESOURCES", Collections.emptyMap());
 
 	/**
-	 * What turns a target written in a document into a {@link Resource}, see
-	 * {@link RelativePathResourceResolver}.
-	 * 
-	 * <p>It is a configuration and not a property of one document, so it is set where the parser is
-	 * built, either with {@link Builder#withRelativePathResourceResolver(RelativePathResourceResolver)}
-	 * or by a {@link MarkdownCustomization}. The default reads the local file system, so a document
-	 * of this machine renders a diagram it refers to without anything being configured; a tool
-	 * whose documents live elsewhere says so here, and then the same resolver answers for
-	 * everything that document refers to.</p>
-	 */
-	public static final DataKey<RelativePathResourceResolver> KEY_RELATIVE_PATH_RESOURCE_RESOLVER =
-			new DataKey<>("RELATIVE_PATH_RESOURCE_RESOLVER", new LocalFileSystemResourceResolver());
-
-	/**
 	 * Which files are read as Markdown, see {@link MarkdownFileExtensions}.
 	 * 
 	 * <p>It is a configuration and not a property of one document, so it is set where the parser is
@@ -111,6 +97,8 @@ public class MarkdownParserAndHtmlRenderer {
 			new DataKey<>("MARKDOWN_FILE_EXTENSIONS", MarkdownFileExtensions.DEFAULT);
 
 	private final MutableDataSet options;
+
+	private final RelativePathResourceResolver relativePathResourceResolver;
 
 	private final Parser markdownParser;
 
@@ -134,8 +122,29 @@ public class MarkdownParserAndHtmlRenderer {
 	 * @throws IllegalArgumentException if the given list is <code>null</code> or contains <code>null</code> entries
 	 */
 	protected MarkdownParserAndHtmlRenderer(List<MarkdownCustomization> customizations) {
+		this(customizations, new LocalFileSystemResourceResolver());
+	}
+
+	/**
+	 * Creates a new parser and renderer with the default configuration adapted by the given
+	 * customizations, resolving what a document refers to with the given resolver.
+	 * 
+	 * <p>The customizations are applied as described in
+	 * {@link #MarkdownParserAndHtmlRenderer(List)}.</p>
+	 * 
+	 * @param customizations the customizations to be applied, must not be <code>null</code>, but may be empty
+	 * @param relativePathResourceResolver what turns a target written in a document into a
+	 *                                     {@link Resource}, must not be <code>null</code>
+	 * @throws IllegalArgumentException if the given list is <code>null</code> or contains <code>null</code> entries,
+	 *                                  or if the given resolver is <code>null</code>
+	 */
+	protected MarkdownParserAndHtmlRenderer(List<MarkdownCustomization> customizations,
+			RelativePathResourceResolver relativePathResourceResolver) {
 		if (customizations == null) {
 			throw new IllegalArgumentException("The list of customizations must not be null.");
+		}
+		if (relativePathResourceResolver == null) {
+			throw new IllegalArgumentException("The resource resolver must not be null.");
 		}
 
 		MutableDataSet createdOptions = createOptions();
@@ -148,6 +157,7 @@ public class MarkdownParserAndHtmlRenderer {
 		}
 
 		this.options = createdOptions;
+		this.relativePathResourceResolver = relativePathResourceResolver;
 		this.markdownParser = createMarkdownParser();
 		this.htmlRenderer = createHtmlRenderer();
 	}
@@ -305,7 +315,17 @@ public class MarkdownParserAndHtmlRenderer {
 		document.set(KEY_DOCUMENT_REFERENCED_RESOURCES, referencedResources);
 		document.set(PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP,
 				new MarkdownDocumentPathToFileContentsMap(documentResource,
-						KEY_RELATIVE_PATH_RESOURCE_RESOLVER.get(document), referencedResources));
+						this.relativePathResourceResolver, referencedResources));
+	}
+
+	/**
+	 * Tells what turns a target written in a document into a {@link Resource}.
+	 * 
+	 * @return the resolver of a target relative to the document it is written in, never
+	 *         <code>null</code>
+	 */
+	public RelativePathResourceResolver getRelativePathResourceResolver() {
+		return this.relativePathResourceResolver;
 	}
 
 	/**
@@ -429,6 +449,9 @@ public class MarkdownParserAndHtmlRenderer {
 
 		private final List<MarkdownCustomization> customizations = new ArrayList<>();
 
+		private RelativePathResourceResolver relativePathResourceResolver =
+				new LocalFileSystemResourceResolver();
+
 		private Builder() {
 			// instances are created via MarkdownParserAndHtmlRenderer.builder()
 		}
@@ -501,7 +524,9 @@ public class MarkdownParserAndHtmlRenderer {
 				throw new IllegalArgumentException("The resource resolver must not be null.");
 			}
 
-			return withOption(KEY_RELATIVE_PATH_RESOURCE_RESOLVER, resolver);
+			this.relativePathResourceResolver = resolver;
+
+			return this;
 		}
 
 		/**
@@ -577,7 +602,7 @@ public class MarkdownParserAndHtmlRenderer {
 		 * @return the newly created parser and renderer, never <code>null</code>
 		 */
 		public MarkdownParserAndHtmlRenderer build() {
-			return new MarkdownParserAndHtmlRenderer(this.customizations);
+			return new MarkdownParserAndHtmlRenderer(this.customizations, this.relativePathResourceResolver);
 		}
 
 	}
