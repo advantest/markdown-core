@@ -70,9 +70,9 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		assertNotNull(document);
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
-		assertTrue(htmlResult.contains("<h1 id=\"section-header-anchor\">Section header</h1>"));
-		assertTrue(htmlResult.contains("<h2 id=\"subsection-header-anchor\">Subsection header</h2>"));
-		assertTrue(htmlResult.contains("<h3>Section without explicit anchor</h3>"));
+		assertTrue(containsMatchOf(htmlResult, "<h1 id=\"section-header-anchor\"[^>]*>Section header</h1>"));
+		assertTrue(containsMatchOf(htmlResult, "<h2 id=\"subsection-header-anchor\"[^>]*>Subsection header</h2>"));
+		assertTrue(containsMatchOf(htmlResult, "<h3[^>]*>Section without explicit anchor</h3>"));
 	}
 	
 	@Test
@@ -88,7 +88,7 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		assertNotNull(document);
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
-		assertTrue(htmlResult.contains("<table>"));
+		assertTrue(containsMatchOf(htmlResult, "<table[^>]*>"));
 	}
 	
 	@Test
@@ -103,7 +103,7 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
 		assertFalse(htmlResult.contains("[^footnotes]"));
-		assertTrue(htmlResult.contains("<div class=\"footnotes\">"));
+		assertTrue(containsMatchOf(htmlResult, "<div class=\"footnotes\"[^>]*>"));
 	}
 	
 	@Test
@@ -162,7 +162,7 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
-		String regex = "<figure>\\s*<svg ";
+		String regex = "<figure[^>]*>\\s*<svg ";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		int numberOfRenderedSvgImages = matcher.results().collect(Collectors.toList()).size();
@@ -185,7 +185,7 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
-		String regex = "<figure>\\s*<svg ";
+		String regex = "<figure[^>]*>\\s*<svg ";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertEquals(2, matcher.results().collect(Collectors.toList()).size());
@@ -209,7 +209,7 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		
 		assertNotNull(htmlResult);
 		assertFalse(htmlResult.isBlank());
-		String regex = "<figure>\\s*<svg ";
+		String regex = "<figure[^>]*>\\s*<svg ";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(htmlResult);
 		assertEquals(1, matcher.results().collect(Collectors.toList()).size());
@@ -231,6 +231,18 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		}
 		
 		return commentNodes;
+	}
+	
+	/**
+	 * Whether the rendered HTML holds an element the given regular expression describes.
+	 * 
+	 * <p>An element is looked for by a pattern rather than by its literal text because every
+	 * rendered element carries where in the Markdown source code it came from, see
+	 * {@link com.advantest.flexmark.ext.sourcetracking.SourcePositionAttributesRendererExtension}.
+	 * A test about one attribute of an element says nothing about the others it may carry.</p>
+	 */
+	private boolean containsMatchOf(String htmlCode, String regex) {
+		return Pattern.compile(regex).matcher(htmlCode).find();
 	}
 	
 	private void assertCorrectSvgAttributes(String htmlCode) {
