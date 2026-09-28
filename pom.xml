@@ -134,6 +134,12 @@
 			<version>${flexmark-extensions-version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-ext-sourcetracking</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+
 		<!--
 			The logging API alone, never a binding. A library that picks where its lines go decides
 			that for the program embedding it, and that is not this library's decision to make.

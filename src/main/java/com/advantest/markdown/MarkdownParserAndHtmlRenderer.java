@@ -21,6 +21,7 @@ import com.advantest.flexmark.ext.figures.FiguresExtension;
 import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
 import com.advantest.flexmark.ext.math.MathExtension;
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
+import com.advantest.flexmark.ext.sourcetracking.SourcePositionAttributesRendererExtension;
 import com.advantest.resources.LocalFileSystemResource;
 import com.advantest.resources.LocalFileSystemResourceResolver;
 import com.advantest.resources.RelativePathResourceResolver;
@@ -221,7 +222,12 @@ public class MarkdownParserAndHtmlRenderer {
 				MathExtension.create(),
 
 			// Advantest's extension for parsing and rendering jira ticket numbers as links to the tickets
-				JiraTicketExtension.create()
+				JiraTicketExtension.create(),
+
+				// Advantest's extension writing into every rendered element where in the Markdown
+				// source code it came from, so that an editor and a preview of the same document
+				// can point at each other
+				SourcePositionAttributesRendererExtension.create()
 		));
 
 		return options;
