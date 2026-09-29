@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -192,6 +193,56 @@ class MarkdownParserAndHtmlRendererReferencedResourcesTest {
 		assertTrue(html.contains("PlantUML file &quot;diagrams/missing.puml&quot; (resolved path: &quot;"
 				+ this.tempDir.resolve("diagrams").resolve("missing.puml") + "&quot;) does not exist."),
 				html);
+	}
+
+	@Test
+	void aDiagramFileThatIsThereIsRenderedIntoTheHtml() {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = new MarkdownParserAndHtmlRenderer();
+		Document document = parse(parserAndRenderer);
+
+		String html = parserAndRenderer.renderHtml(document);
+
+		assertTrue(containsSvgImage(html), html);
+		assertTrue(html.contains("Foo"), html);
+	}
+
+	@Test
+	void aDocumentIsRenderedAlikeWhetherItsFileOrItsTextIsParsed() throws IOException {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = new MarkdownParserAndHtmlRenderer();
+
+		String fromText = parserAndRenderer.renderHtml(parse(parserAndRenderer));
+		String fromFile = parserAndRenderer.renderHtml(
+				parserAndRenderer.parseMarkdown(this.markdownFile.toFile()));
+
+		assertEquals(fromText, fromFile);
+	}
+
+	@Test
+	void aDiagramReadThroughAConfiguredResolverIsRenderedIntoTheHtml() {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = MarkdownParserAndHtmlRenderer.builder()
+				.withRelativePathResourceResolver(new CountingResourceResolver())
+				.build();
+
+		String html = parserAndRenderer.renderHtml(parse(parserAndRenderer));
+
+		assertTrue(containsSvgImage(html), html);
+		assertTrue(html.contains("Resolved"), html);
+	}
+
+	@Test
+	void aDiagramOfADocumentOfUnknownOriginIsRenderedAsAMessageNamingTheTargetAsWritten() {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = new MarkdownParserAndHtmlRenderer();
+		Document document = parserAndRenderer.parseMarkdown(MARKDOWN);
+
+		String html = parserAndRenderer.renderHtml(document);
+
+		assertFalse(containsSvgImage(html), html);
+		assertTrue(html.contains("PlantUML file &quot;diagrams/classes.puml&quot; (resolved path: "
+				+ "&quot;diagrams/classes.puml&quot;) does not exist."), html);
+	}
+
+	private boolean containsSvgImage(String html) {
+		return Pattern.compile("<figure[^>]*>\\s*<svg ").matcher(html).find();
 	}
 
 	private Document parse(MarkdownParserAndHtmlRenderer parserAndRenderer) {

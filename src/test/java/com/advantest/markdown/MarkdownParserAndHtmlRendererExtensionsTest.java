@@ -7,6 +7,7 @@
 package com.advantest.markdown;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.advantest.flexmark.ext.plantuml.PlantUmlBlockNode;
 import com.advantest.flexmark.ext.plantuml.PlantUmlFencedCodeBlockNode;
 import com.advantest.flexmark.ext.plantuml.PlantUmlImage;
+import com.advantest.resources.LocalFileSystemResource;
 import com.vladsch.flexmark.ast.FencedCodeBlock;
 import com.vladsch.flexmark.ast.HtmlCommentBlock;
 import com.vladsch.flexmark.util.ast.Document;
@@ -167,6 +169,22 @@ class MarkdownParserAndHtmlRendererExtensionsTest {
 		Matcher matcher = pattern.matcher(htmlResult);
 		int numberOfRenderedSvgImages = matcher.results().collect(Collectors.toList()).size();
 		assertEquals(2, numberOfRenderedSvgImages);
+		
+		assertCorrectSvgAttributes(htmlResult);
+	}
+	
+	@Test
+	void plantUmlIncludesAreRenderedToSvgWhenTheDocumentTextIsParsedWithItsResource() throws Exception {
+		File mdFile = new File(TEST_SRC_PATH + "/markdown/extensions/puml-include.md");
+		String markdownSource = Files.readString(mdFile.toPath());
+		
+		Document document = parserRenderer.parseMarkdown(markdownSource,
+				LocalFileSystemResource.of(mdFile.toPath()));
+		String htmlResult = parserRenderer.renderHtml(document);
+		
+		String regex = "<figure[^>]*>\\s*<svg ";
+		Matcher matcher = Pattern.compile(regex).matcher(htmlResult);
+		assertEquals(2, matcher.results().collect(Collectors.toList()).size());
 		
 		assertCorrectSvgAttributes(htmlResult);
 	}
