@@ -15,11 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocation;
+import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocations;
 import com.advantest.resources.RelativePathResourceResolver;
 import com.advantest.resources.Resource;
 
 /**
- * The text of everything a document refers to, read when it is asked for.
+ * The text of everything a document refers to, read when it is asked for, and where each of those
+ * targets was looked for.
  * 
  * <p>A renderer working on a parsed document asks for a target the way it is written in that
  * document, e.g. <code>diagrams/classes.puml</code>, and is answered with the text behind it. The
@@ -31,7 +34,9 @@ import com.advantest.resources.Resource;
  * nothing at all, and a target asked for twice is read once. A target that cannot be resolved or
  * cannot be read is answered with <code>null</code>, which is how a caller says that it has no
  * text, and the reason is logged rather than thrown &ndash; whoever renders a reference decides
- * what to show in its place.</p>
+ * what to show in its place. Such a renderer may then ask {@link #locationOf(String) where} the
+ * target was looked for and tell its reader that place, which is the only way that reader learns
+ * which file to go looking for.</p>
  * 
  * <p>What is {@link #put(String, String) put in} wins over reading. A caller that already knows the
  * text of a target, or that hands over text it produced itself rather than the text of a file, says
@@ -39,7 +44,8 @@ import com.advantest.resources.Resource;
  * about what it holds: {@link #size()}, {@link #containsKey(Object)} and iteration see what was put
  * in and what was read so far, never what could still be read.</p>
  */
-final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String> {
+final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String>
+		implements PlantUmlFileLocations {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MarkdownDocumentReferencedFiles.class);
 
@@ -82,8 +88,7 @@ final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String> 
 			return knownContents;
 		}
 
-		Resource resource = this.resourcesByTarget.computeIfAbsent(targetPath,
-				path -> this.resolver.resolve(path, this.documentResource));
+		Resource resource = resolvedResourceOf(targetPath);
 
 		try {
 			String contents = resource.readAllContents();
@@ -94,6 +99,28 @@ final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String> 
 					+ " for it.", this.documentResource.getResolvedPath(), targetPath, failure);
 			return null;
 		}
+	}
+
+	@Override
+	public PlantUmlFileLocation locationOf(String target) {
+		if (target == null || target.isBlank()) {
+			return null;
+		}
+
+		Resource resource = resolvedResourceOf(target);
+		return new PlantUmlFileLocation(resource.getResolvedPath(), resource.exists());
+	}
+
+	/**
+	 * Resolves the given target against the document it is written in, once per target.
+	 * 
+	 * @param target the target as it is written in the document, must not be blank
+	 * @return what that target names, never <code>null</code>, an
+	 *         {@link com.advantest.resources.UnresolvedResource} if it names nothing
+	 */
+	private Resource resolvedResourceOf(String target) {
+		return this.resourcesByTarget.computeIfAbsent(target,
+				path -> this.resolver.resolve(path, this.documentResource));
 	}
 
 	@Override

@@ -303,7 +303,9 @@ public class MarkdownParserAndHtmlRenderer {
 	 * {@link #KEY_DOCUMENT_REFERENCED_RESOURCES map of targets to resources}, and the text of those
 	 * targets, read from them while the document is rendered. A renderer asking for a target it
 	 * found in the document is therefore answered without knowing where the document lives, and
-	 * nothing is read for a document that is never rendered.</p>
+	 * nothing is read for a document that is never rendered. A renderer that was answered with no
+	 * text may ask where the target was looked for, so that it can name that place to a reader
+	 * instead of only saying that something is missing.</p>
 	 * 
 	 * @param document the parsed document, must not be <code>null</code>
 	 * @param documentResource the resource the document's source code came from, must not be
@@ -319,9 +321,11 @@ public class MarkdownParserAndHtmlRenderer {
 
 		Map<String, Resource> referencedResources = new ConcurrentHashMap<>();
 		document.set(KEY_DOCUMENT_REFERENCED_RESOURCES, referencedResources);
-		document.set(PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP,
-				new MarkdownDocumentReferencedFiles(documentResource,
-						this.relativePathResourceResolver, referencedResources));
+
+		MarkdownDocumentReferencedFiles referencedFiles = new MarkdownDocumentReferencedFiles(
+				documentResource, this.relativePathResourceResolver, referencedResources);
+		document.set(PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP, referencedFiles);
+		document.set(PlantUmlExtension.KEY_DOCUMENT_PLANTUML_FILE_LOCATIONS, referencedFiles);
 	}
 
 	/**

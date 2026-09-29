@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.advantest.flexmark.ext.plantuml.PlantUmlExtension;
+import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocation;
+import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocations;
 import com.advantest.resources.LocalFileSystemResource;
 import com.advantest.resources.RelativePathResourceResolver;
 import com.advantest.resources.Resource;
@@ -60,6 +62,10 @@ class MarkdownParserAndHtmlRendererReferencedResourcesTest {
 
 	private Map<String, String> contentsOf(Document document) {
 		return PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP.get(document);
+	}
+
+	private PlantUmlFileLocations locationsOf(Document document) {
+		return PlantUmlExtension.KEY_DOCUMENT_PLANTUML_FILE_LOCATIONS.get(document);
 	}
 
 	@Test
@@ -132,6 +138,60 @@ class MarkdownParserAndHtmlRendererReferencedResourcesTest {
 				.build());
 
 		assertEquals("@startuml\nclass Resolved\n@enduml\n", contentsOf(document).get("diagrams/classes.puml"));
+	}
+
+	@Test
+	void aTargetThatIsNotThereSaysWhereItWasLookedFor() {
+		Document document = parse(new MarkdownParserAndHtmlRenderer());
+
+		PlantUmlFileLocation location = locationsOf(document).locationOf("diagrams/missing.puml");
+
+		assertEquals(this.tempDir.resolve("diagrams").resolve("missing.puml").toString(),
+				location.resolvedPath());
+		assertFalse(location.exists());
+	}
+
+	@Test
+	void aTargetThatIsThereSaysThatItIsThere() {
+		Document document = parse(new MarkdownParserAndHtmlRenderer());
+
+		PlantUmlFileLocation location = locationsOf(document).locationOf("diagrams/classes.puml");
+
+		assertEquals(this.diagramFile.toString(), location.resolvedPath());
+		assertTrue(location.exists());
+	}
+
+	@Test
+	void aConfiguredResolverSaysHowItNamesWhereItLooked() {
+		Document document = parse(MarkdownParserAndHtmlRenderer.builder()
+				.withRelativePathResourceResolver(new CountingResourceResolver())
+				.build());
+
+		PlantUmlFileLocation location = locationsOf(document).locationOf("diagrams/classes.puml");
+
+		assertEquals("diagrams/classes.puml", location.resolvedPath());
+	}
+
+	@Test
+	void aPathTraversalIsRemovedFromWhereATargetWasLookedFor() {
+		Document document = parse(new MarkdownParserAndHtmlRenderer());
+
+		PlantUmlFileLocation location = locationsOf(document).locationOf("diagrams/../missing.puml");
+
+		assertEquals(this.tempDir.resolve("missing.puml").toString(), location.resolvedPath());
+	}
+
+	@Test
+	void aMissingDiagramIsRenderedSayingWhereItsFileWasLookedFor() {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = new MarkdownParserAndHtmlRenderer();
+		Document document = parserAndRenderer.parseMarkdown("![diagram](diagrams/missing.puml)\n",
+				LocalFileSystemResource.of(this.markdownFile));
+
+		String html = parserAndRenderer.renderHtml(document);
+
+		assertTrue(html.contains("PlantUML file &quot;diagrams/missing.puml&quot; (resolved path: &quot;"
+				+ this.tempDir.resolve("diagrams").resolve("missing.puml") + "&quot;) does not exist."),
+				html);
 	}
 
 	private Document parse(MarkdownParserAndHtmlRenderer parserAndRenderer) {
