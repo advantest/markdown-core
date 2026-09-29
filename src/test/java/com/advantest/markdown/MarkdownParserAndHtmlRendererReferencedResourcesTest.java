@@ -237,8 +237,9 @@ class MarkdownParserAndHtmlRendererReferencedResourcesTest {
 		String html = parserAndRenderer.renderHtml(document);
 
 		assertFalse(containsSvgImage(html), html);
-		assertTrue(html.contains("PlantUML file &quot;diagrams/classes.puml&quot; (resolved path: "
-				+ "&quot;diagrams/classes.puml&quot;) does not exist."), html);
+		assertTrue(html.contains(
+				"PlantUML file &quot;diagrams/classes.puml&quot; does not exist."), html);
+		assertFalse(html.contains("resolved path"), html);
 	}
 
 	private boolean containsSvgImage(String html) {
