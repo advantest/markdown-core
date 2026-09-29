@@ -320,7 +320,7 @@ public class MarkdownParserAndHtmlRenderer {
 		Map<String, Resource> referencedResources = new ConcurrentHashMap<>();
 		document.set(KEY_DOCUMENT_REFERENCED_RESOURCES, referencedResources);
 		document.set(PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP,
-				new MarkdownDocumentPathToFileContentsMap(documentResource,
+				new MarkdownDocumentReferencedFiles(documentResource,
 						this.relativePathResourceResolver, referencedResources));
 	}
 

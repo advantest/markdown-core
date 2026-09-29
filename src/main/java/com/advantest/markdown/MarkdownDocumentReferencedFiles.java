@@ -39,9 +39,9 @@ import com.advantest.resources.Resource;
  * about what it holds: {@link #size()}, {@link #containsKey(Object)} and iteration see what was put
  * in and what was read so far, never what could still be read.</p>
  */
-final class MarkdownDocumentPathToFileContentsMap extends AbstractMap<String, String> {
+final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MarkdownDocumentPathToFileContentsMap.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MarkdownDocumentReferencedFiles.class);
 
 	private final Resource documentResource;
 
@@ -60,7 +60,7 @@ final class MarkdownDocumentPathToFileContentsMap extends AbstractMap<String, St
 	 * @param resourcesByTarget where a resolved target is remembered, must not be <code>null</code>
 	 * @throws IllegalArgumentException if one of the arguments is <code>null</code>
 	 */
-	MarkdownDocumentPathToFileContentsMap(Resource documentResource, RelativePathResourceResolver resolver,
+	MarkdownDocumentReferencedFiles(Resource documentResource, RelativePathResourceResolver resolver,
 			Map<String, Resource> resourcesByTarget) {
 		if (documentResource == null || resolver == null || resourcesByTarget == null) {
 			throw new IllegalArgumentException("Arguments must not be null.");
