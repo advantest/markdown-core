@@ -6,6 +6,7 @@
  */
 package com.advantest;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -22,8 +23,6 @@ public class MarkdownCoreInfo {
 	private static String plantUmlVersion;
 	private static String flexmarkVersion;
 	private static String flexmarkExtensionsVersion;
-	private static String graphvizVersion;
-	private static String graphvizExecutable;
 	
 	private static final String PROPERTY_MARKDOWN_CORE_VERSION = "markdownCoreVersion";
 	private static final String PROPERTY_FLEXMARK_VERSION = "flexmarkVersion";
@@ -31,7 +30,6 @@ public class MarkdownCoreInfo {
 	
 	static {
 		readProperties();
-		readGraphvizVersion();
 	}
 	
 	private static void readProperties() {
@@ -57,27 +55,13 @@ public class MarkdownCoreInfo {
 		plantUmlVersion = net.sourceforge.plantuml.version.Version.versionString();
 	}
 	
-	private static void readGraphvizVersion() {
-		Graphviz graphviz = GraphvizRuntimeEnvironment.getInstance().create(null, "foo;", "svg");
-		
-		graphvizExecutable = graphviz.getDotExe() != null ? graphviz.getDotExe().getAbsolutePath() : "";
-		
-		// Remove textual prefix in a string like "dot - graphviz version 12.1.2 (20240928.0832)"
-		String versionText = graphviz.dotVersion();
-		if (versionText == null) {
-			// Graphviz is not installed or does not say which version it is
-			graphvizVersion = "";
-			return;
-		}
-
-		Pattern versionPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\s\\([\\d\\.]*\\)");
-		Matcher versionMatcher = versionPattern.matcher(versionText);
-		if (versionMatcher.find()) {
-			graphvizVersion = versionMatcher.group();
-			return;
-		}
-
-		graphvizVersion = "";
+	/**
+	 * Asks PlantUML which Graphviz it would use right now. Which one that is can change while
+	 * this library runs, because the executable can be named at any time, so nothing here is
+	 * remembered from an earlier call.
+	 */
+	private static Graphviz currentGraphviz() {
+		return GraphvizRuntimeEnvironment.getInstance().create(null, "foo;", "svg");
 	}
 	
 	public static String getVersion() {
@@ -106,11 +90,25 @@ public class MarkdownCoreInfo {
 	}
 	
 	public static String getGraphvizVersion() {
-		return graphvizVersion;
+		// Remove textual prefix in a string like "dot - graphviz version 12.1.2 (20240928.0832)"
+		String versionText = currentGraphviz().dotVersion();
+		if (versionText == null) {
+			// Graphviz is not installed or does not say which version it is
+			return "";
+		}
+
+		Pattern versionPattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\s\\([\\d\\.]*\\)");
+		Matcher versionMatcher = versionPattern.matcher(versionText);
+		if (versionMatcher.find()) {
+			return versionMatcher.group();
+		}
+
+		return "";
 	}
 	
 	public static String getGraphvizExecutable() {
-		return graphvizExecutable;
+		File dotExecutable = currentGraphviz().getDotExe();
+		return dotExecutable != null ? dotExecutable.getAbsolutePath() : "";
 	}
 	
 }
