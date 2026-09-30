@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import com.advantest.MarkdownCoreInfo;
@@ -22,6 +23,11 @@ import com.advantest.MarkdownCoreInfo;
 import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 
 class MarkdownCoreInfoTest {
+	
+	@AfterEach
+	void leaveTheSettingsAsTheyWere() {
+		System.clearProperty("plantuml.allowlist.url");
+	}
 	
 	@Test
 	void testReadingProperties() {

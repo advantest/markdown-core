@@ -22,6 +22,17 @@ import net.sourceforge.plantuml.preproc.Defines;
 
 public class PlantUmlToSvgRenderer {
 	
+	/**
+	 * Names the Graphviz <code>dot</code> executable PlantUML shall run, without checking whether
+	 * there is one at the given path.
+	 * 
+	 * @param dotExecutablePath the path of the executable, may be <code>null</code> or blank, in
+	 *                          which case nothing is named and PlantUML decides
+	 * @deprecated where the executable lies is a setting of the machine rather than of a renderer,
+	 *             so it belongs to {@link PlantUmlSettings#setDotExecutable(String)}, which also
+	 *             says so where nothing at the given path can be run.
+	 */
+	@Deprecated
 	public void setDotExecutable(String dotExecutablePath) {
 		if (dotExecutablePath != null && !dotExecutablePath.isBlank()) {
 			GraphvizRuntimeEnvironment.getInstance().setDotExecutable(dotExecutablePath);
