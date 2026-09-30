@@ -60,6 +60,14 @@ jobs:
     - name: Build with Maven
       run: mvn -B clean verify -U -s $HOME/.m2/settings.xml
 
+    - name: Keep the code coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: target/site/jacoco
+        if-no-files-found: warn
+
     - name: Deploy to GitHub Maven Packages
       if: github.ref_name == 'main'  && github.repository == 'advantest/markdown-core'
       env:

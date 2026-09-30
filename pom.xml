@@ -21,6 +21,7 @@
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
 		<slf4j-version>2.0.18</slf4j-version>
+		<jacoco-version>0.8.15</jacoco-version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -261,6 +262,35 @@
 						<version>5.9.1</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+			
+			<!-- Measures how much of the code the tests reach. The measurement runs with every
+			     build and does not judge the result: how the value has to develop is not decided
+			     yet, so nothing fails because of it. The report is written to
+			     target/site/jacoco/index.html, and the CI workflow keeps it as an artefact.
+
+			     The agent is passed to the tests through the argLine property, which surefire picks
+			     up on its own. A build that sets that property itself therefore runs without the
+			     agent and measures nothing. -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco-version}</version>
+				<executions>
+					<execution>
+						<id>prepare-coverage-measurement</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report-coverage</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			
 			<!-- also download the PlantUML source code for the selected version
