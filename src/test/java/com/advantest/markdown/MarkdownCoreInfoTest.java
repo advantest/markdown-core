@@ -12,9 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
 import com.advantest.MarkdownCoreInfo;
+
+import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 
 class MarkdownCoreInfoTest {
 	
@@ -62,6 +67,23 @@ class MarkdownCoreInfoTest {
 		assertNotNull(executable);
 		assertFalse(executable.isBlank());
 		assertTrue(executable.endsWith("dot") || executable.endsWith("dot.exe"));
+	}
+	
+	@Test
+	void testReadingTheGraphvizExecutableNamedLast() throws IOException {
+		String executableBefore = MarkdownCoreInfo.getGraphvizExecutable();
+		File anotherExecutable = File.createTempFile("dot-of-a-test", ".exe");
+		anotherExecutable.deleteOnExit();
+		
+		try {
+			GraphvizRuntimeEnvironment.getInstance().setDotExecutable(anotherExecutable.getAbsolutePath());
+			
+			assertEquals(anotherExecutable.getAbsolutePath(), MarkdownCoreInfo.getGraphvizExecutable());
+		} finally {
+			GraphvizRuntimeEnvironment.getInstance().setDotExecutable(null);
+		}
+		
+		assertEquals(executableBefore, MarkdownCoreInfo.getGraphvizExecutable());
 	}
 
 }
