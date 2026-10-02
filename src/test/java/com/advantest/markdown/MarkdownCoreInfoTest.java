@@ -92,4 +92,18 @@ class MarkdownCoreInfoTest {
 		assertEquals(executableBefore, MarkdownCoreInfo.getGraphvizExecutable());
 	}
 
+	@Test
+	void testReadingTheGraphvizVersionOfAnExecutableThatCannotBeRun() throws IOException {
+		File notRunnable = File.createTempFile("dot-of-a-test", ".exe");
+		notRunnable.deleteOnExit();
+		
+		try {
+			GraphvizRuntimeEnvironment.getInstance().setDotExecutable(notRunnable.getAbsolutePath());
+			
+			assertEquals("", MarkdownCoreInfo.getGraphvizVersion());
+		} finally {
+			GraphvizRuntimeEnvironment.getInstance().setDotExecutable(null);
+		}
+	}
+
 }
