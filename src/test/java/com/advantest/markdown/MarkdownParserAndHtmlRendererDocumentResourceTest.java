@@ -7,9 +7,11 @@
 package com.advantest.markdown;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -123,6 +125,38 @@ class MarkdownParserAndHtmlRendererDocumentResourceTest {
 						LocalFileSystemResource.of(this.markdownFile)));
 		assertThrows(IllegalArgumentException.class,
 				() -> this.parserAndRenderer.getDocumentResource(null));
+	}
+
+	@Test
+	void refusesToTellTheResourceOfNoDocument() {
+		assertThrows(IllegalArgumentException.class, () -> this.parserAndRenderer.getDocumentResource(null));
+	}
+
+	@Test
+	void refusesToParseNoFile() {
+		assertThrows(IllegalArgumentException.class, () -> this.parserAndRenderer.parseMarkdown((File) null));
+	}
+
+	@Test
+	void refusesToParseAFileThatCannotBeRead() {
+		File missingFile = this.tempDir.resolve("missing.md").toFile();
+
+		assertThrows(IllegalArgumentException.class, () -> this.parserAndRenderer.parseMarkdown(missingFile));
+	}
+
+	@Test
+	void refusesToParseAFileThatIsNotNamedLikeAMarkdownFile() throws IOException {
+		Path textFile = this.tempDir.resolve("readme.txt");
+		Files.writeString(textFile, MARKDOWN);
+
+		assertThrows(IllegalArgumentException.class, () -> this.parserAndRenderer.parseMarkdown(textFile.toFile()));
+	}
+
+	@Test
+	void readsTheExtensionOfAFileWithoutTheSeparatingDot() {
+		assertEquals("md", this.parserAndRenderer.getFileExtension(this.markdownFile.toFile()));
+		assertNull(this.parserAndRenderer.getFileExtension(this.tempDir.resolve("README").toFile()));
+		assertNull(this.parserAndRenderer.getFileExtension(null));
 	}
 
 }

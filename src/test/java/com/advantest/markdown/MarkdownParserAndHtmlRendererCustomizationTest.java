@@ -9,10 +9,13 @@ package com.advantest.markdown;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import com.advantest.flexmark.ext.jira.tickets.JiraTicketExtension;
+import com.advantest.resources.LocalFileSystemResourceResolver;
+import com.advantest.resources.RelativePathResourceResolver;
 import com.vladsch.flexmark.html.AttributeProvider;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.html.IndependentAttributeProviderFactory;
@@ -302,4 +307,46 @@ class MarkdownParserAndHtmlRendererCustomizationTest {
 				() -> MarkdownParserAndHtmlRenderer.builder().withMarkdownFileExtensions(null));
 	}
 
+	@Test
+	void refusesAMissingListOfCustomizations() {
+		assertThrows(IllegalArgumentException.class,
+				() -> new MarkdownParserAndHtmlRenderer(null, new LocalFileSystemResourceResolver()));
+	}
+
+	@Test
+	void refusesAListOfCustomizationsContainingNothing() {
+		List<MarkdownCustomization> customizations = new ArrayList<>();
+		customizations.add(null);
+
+		assertThrows(IllegalArgumentException.class,
+				() -> new MarkdownParserAndHtmlRenderer(customizations, new LocalFileSystemResourceResolver()));
+	}
+
+	@Test
+	void refusesAMissingResourceResolver() {
+		assertThrows(IllegalArgumentException.class,
+				() -> new MarkdownParserAndHtmlRenderer(List.of(), null));
+		assertThrows(IllegalArgumentException.class,
+				() -> MarkdownParserAndHtmlRenderer.builder().withRelativePathResourceResolver(null));
+	}
+
+	@Test
+	void usesTheResourceResolverItWasBuiltWith() {
+		RelativePathResourceResolver resolver = new LocalFileSystemResourceResolver();
+
+		MarkdownParserAndHtmlRenderer parserAndRenderer = MarkdownParserAndHtmlRenderer.builder()
+				.withRelativePathResourceResolver(resolver).build();
+
+		assertSame(resolver, parserAndRenderer.getRelativePathResourceResolver());
+	}
+
+	@Test
+	void exposesTheParserAndTheRendererItWorksWith() {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = new MarkdownParserAndHtmlRenderer();
+
+		String html = parserAndRenderer.getHtmlRenderer().render(parserAndRenderer.getMarkdownParser().parse("**bold**"));
+
+		assertEquals("<p source-offset=\"0\" source-length=\"8\"><strong source-offset=\"0\" source-length=\"8\">bold</strong></p>\n", html);
+		assertEquals(html, parserAndRenderer.parseMarkdownAndRenderHtml("**bold**"));
+	}
 }

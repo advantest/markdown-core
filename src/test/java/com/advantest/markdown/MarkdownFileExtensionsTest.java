@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -136,6 +137,22 @@ class MarkdownFileExtensionsTest {
 		assertEquals("md", MarkdownFileExtensions.getFileExtension("../v1.0/guide.md"));
 		assertTrue(MarkdownFileExtensions.DEFAULT.isMarkdownFile("../v1.0/guide.md"));
 		assertFalse(MarkdownFileExtensions.DEFAULT.isMarkdownFile("../v1.md/guide"));
+	}
+
+	@Test
+	void refusesToAcceptNoCollectionOfExtensions() {
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting((Collection<String>) null));
+		assertThrows(IllegalArgumentException.class, () -> MarkdownFileExtensions.accepting(List.of()));
+	}
+
+	@Test
+	void refusesNoFileAsAMarkdownFile() {
+		assertFalse(MarkdownFileExtensions.accepting("md").isMarkdownFile((File) null));
+	}
+
+	@Test
+	void namesTheAcceptedExtensionsWhenPrinted() {
+		assertEquals("Markdown file extensions: [md]", MarkdownFileExtensions.accepting(".MD").toString());
 	}
 
 }
