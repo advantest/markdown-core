@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,8 @@ import net.sourceforge.plantuml.security.SecurityProfile;
 import net.sourceforge.plantuml.security.SecurityUtils;
 
 class PlantUmlSettingsTest {
+	
+	private static final String PROPERTY_SECURITY_PROFILE = "PLANTUML_SECURITY_PROFILE";
 	
 	@AfterEach
 	void leaveTheSettingsAsTheyWere() {
@@ -114,6 +117,115 @@ class PlantUmlSettingsTest {
 		
 		assertEquals(List.of("https://one.example.com/", "https://two.example.com/"),
 				PlantUmlSettings.getUrlAllowList());
+	}
+
+	@Test
+	void namingABlankPathTakesTheNameBackLikeNamingNothing() throws IOException {
+		PlantUmlSettings.setDotExecutable(anExecutableFile().getAbsolutePath());
+		
+		PlantUmlSettings.setDotExecutable("   ");
+		
+		assertNull(PlantUmlSettings.getDotExecutable());
+	}
+	
+	@Test
+	void aPathWrittenWithSurroundingBlanksNamesTheSameExecutable() throws IOException {
+		File executable = anExecutableFile();
+		
+		PlantUmlSettings.setDotExecutable("  " + executable.getAbsolutePath() + " ");
+		
+		assertEquals(executable.getAbsolutePath(), PlantUmlSettings.getDotExecutable());
+	}
+	
+	@Test
+	void namingADirectoryInsteadOfAnExecutableSaysSo() throws IOException {
+		File directory = Files.createTempDirectory("dot-directory-of-a-test").toFile();
+		directory.deleteOnExit();
+		
+		assertThrows(IllegalArgumentException.class, () -> PlantUmlSettings.setDotExecutable(directory.getPath()));
+		assertNull(PlantUmlSettings.getDotExecutable());
+	}
+	
+	@Test
+	void aMissingProfileIsRefused() {
+		assertThrows(IllegalArgumentException.class, () -> PlantUmlSettings.setSecurityProfile(null));
+	}
+	
+	@Test
+	void aProfileThatCannotBeAppliedLeavesNoSystemPropertyBehind() {
+		System.clearProperty(PROPERTY_SECURITY_PROFILE);
+		SecurityProfile anotherProfile = anotherProfileThanTheAppliedOne();
+		
+		assertThrows(IllegalStateException.class, () -> PlantUmlSettings.setSecurityProfile(anotherProfile));
+		
+		assertNull(System.getProperty(PROPERTY_SECURITY_PROFILE));
+	}
+	
+	@Test
+	void aProfileThatCannotBeAppliedLeavesTheSystemPropertyAsItWas() {
+		SecurityProfile appliedProfile = PlantUmlSettings.getSecurityProfile();
+		System.setProperty(PROPERTY_SECURITY_PROFILE, appliedProfile.name());
+		
+		try {
+			assertThrows(IllegalStateException.class,
+					() -> PlantUmlSettings.setSecurityProfile(anotherProfileThanTheAppliedOne()));
+			
+			assertEquals(appliedProfile.name(), System.getProperty(PROPERTY_SECURITY_PROFILE));
+		} finally {
+			System.clearProperty(PROPERTY_SECURITY_PROFILE);
+		}
+	}
+	
+	@Test
+	void aMissingListOfAddressesIsRefused() {
+		assertThrows(IllegalArgumentException.class, () -> PlantUmlSettings.setUrlAllowList(null));
+	}
+	
+	@Test
+	void anEmptyListOfAddressesAllowsNoneAndReplacesWhatWasAllowed() {
+		PlantUmlSettings.setUrlAllowList(List.of("https://one.example.com/"));
+		
+		PlantUmlSettings.setUrlAllowList(List.of());
+		
+		assertEquals(List.of(), PlantUmlSettings.getUrlAllowList());
+		assertEquals("", MarkdownCoreInfo.getPlantUmlUrlAllowList());
+	}
+	
+	@Test
+	void blanksAroundAnAllowedAddressAndBlankAddressesAreLeftOut() {
+		PlantUmlSettings.setUrlAllowList(List.of("  https://one.example.com/ ", "   ", "", "https://two.example.com/"));
+		
+		assertEquals(List.of("https://one.example.com/", "https://two.example.com/"),
+				PlantUmlSettings.getUrlAllowList());
+	}
+	
+	@Test
+	void anAllowListThatWasSetToNothingButBlanksAllowsNoAddress() {
+		System.setProperty(SecurityUtils.ALLOWLIST_URL, "  ");
+		assertEquals(List.of(), PlantUmlSettings.getUrlAllowList());
+		
+		System.setProperty(SecurityUtils.ALLOWLIST_URL, " ; ;");
+		assertEquals(List.of(), PlantUmlSettings.getUrlAllowList());
+	}
+	
+	@Test
+	void allowingAnAddressWrittenWithBlanksAllowsItWithoutThem() {
+		PlantUmlSettings.allowUrl("  https://one.example.com/ ");
+		
+		assertEquals(List.of("https://one.example.com/"), PlantUmlSettings.getUrlAllowList());
+	}
+	
+	@Test
+	void allowingNothingIsRefused() {
+		assertThrows(IllegalArgumentException.class, () -> PlantUmlSettings.allowUrl(null));
+		assertThrows(IllegalArgumentException.class, () -> PlantUmlSettings.allowUrl("  "));
+		assertEquals(List.of(), PlantUmlSettings.getUrlAllowList());
+	}
+	
+	private SecurityProfile anotherProfileThanTheAppliedOne() {
+		return PlantUmlSettings.getSecurityProfile() == SecurityProfile.SANDBOX
+				? SecurityProfile.INSECURE
+				: SecurityProfile.SANDBOX;
 	}
 	
 }
