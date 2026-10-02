@@ -8,6 +8,7 @@ package com.advantest.resources;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -162,6 +163,57 @@ class LocalFileSystemResourceResolverTest {
 		assertEquals(oneWay, anotherWay);
 		assertEquals(oneWay.hashCode(), anotherWay.hashCode());
 		assertEquals(oneWay.getResolvedPath(), oneWay.toString());
+	}
+
+	@Test
+	void reportsATargetThatIsNoPathOfThisFileSystemAsUnresolved() {
+		Resource resolved = this.resolver.resolve("some\0name.md", this.document);
+
+		assertFalse(resolved.exists());
+		assertEquals(new UnresolvedResource("some\0name.md"), resolved);
+	}
+
+	@Test
+	void doesNotReadTheContentsOfADirectory() throws IOException {
+		Path directory = this.tempDir.resolve("images");
+		Files.createDirectories(directory);
+
+		IOException failure = assertThrows(IOException.class,
+				() -> LocalFileSystemResource.of(directory).readContents());
+
+		assertTrue(failure.getMessage().contains(directory.toString()));
+	}
+
+	@Test
+	void treatsUnresolvedResourcesOfTheSamePathAsEqual() {
+		UnresolvedResource resource = new UnresolvedResource("missing.md");
+
+		assertEquals(resource, resource);
+		assertEquals(new UnresolvedResource("missing.md"), resource);
+		assertEquals(new UnresolvedResource("missing.md").hashCode(), resource.hashCode());
+		assertNotEquals(new UnresolvedResource("other.md"), resource);
+	}
+
+	@Test
+	void doesNotMistakeAnUnresolvedResourceForAResourceOfTheFileSystem() {
+		Path file = this.tempDir.resolve("docs").resolve("readme.md");
+		UnresolvedResource unresolved = new UnresolvedResource(file.toString());
+		LocalFileSystemResource local = LocalFileSystemResource.of(file);
+
+		assertNotEquals(unresolved, local);
+		assertNotEquals(local, unresolved);
+		assertNotEquals(unresolved, null);
+		assertNotEquals(local, null);
+	}
+
+	@Test
+	void namesTheUnresolvedPathWhenAnUnresolvedResourceIsPrinted() {
+		assertEquals("unresolved: missing.md", new UnresolvedResource("missing.md").toString());
+	}
+
+	@Test
+	void refusesAnUnresolvedResourceWithoutAPath() {
+		assertThrows(IllegalArgumentException.class, () -> new UnresolvedResource(null));
 	}
 
 }

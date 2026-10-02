@@ -118,4 +118,24 @@ class FileSchemeUriResolverTest {
 		assertThrows(IllegalArgumentException.class, () -> new FileSchemeUriResolver(null));
 	}
 
+	@Test
+	void reportsAnAddressWithoutAPathAsUnresolved() {
+		URI withoutPath = URI.create("file://some-host");
+
+		Resource resolved = this.resolver.resolve(withoutPath, this.document);
+
+		assertFalse(resolved.exists());
+		assertEquals(new UnresolvedResource("file://some-host"), resolved);
+	}
+
+	@Test
+	void ignoresTheQueryOfAnAddressTheFileSystemCannotReadAsAWhole() {
+		URI withQuery = URI.create("file:///some-directory/guide.md?version=1");
+
+		Resource resolved = this.resolver.resolve(withQuery, this.document);
+
+		assertFalse(resolved.exists());
+		assertTrue(resolved.getResolvedPath().endsWith("guide.md"));
+	}
+
 }
