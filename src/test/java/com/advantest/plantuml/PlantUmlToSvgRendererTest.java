@@ -11,8 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -83,8 +86,19 @@ class PlantUmlToSvgRendererTest {
 		File source = this.tempDir.resolve("empty.puml").toFile();
 		Files.writeString(source.toPath(), "no diagram in here\n");
 
-		// the renderer writes a warning in this case, which no test can read without a logging binding
 		assertNull(this.renderer.plantUmlToSvg(source));
+	}
+
+	@Test
+	void warnsAboutAFileHoldingNoDiagram() throws IOException {
+		File source = this.tempDir.resolve("empty.puml").toFile();
+		Files.writeString(source.toPath(), "no diagram in here\n");
+
+		String written = whatIsLoggedWhile(() -> this.renderer.plantUmlToSvg(source));
+
+		assertTrue(written.contains("WARN"));
+		assertTrue(written.contains(source.getAbsolutePath()));
+		assertTrue(written.contains("@startuml"));
 	}
 
 	@Test
@@ -102,6 +116,23 @@ class PlantUmlToSvgRendererTest {
 		Path source = this.tempDir.resolve(name);
 		Files.writeString(source, SEQUENCE_DIAGRAM);
 		return source.toFile();
+	}
+
+	/**
+	 * Answers what the logging binding of the test run writes while the given work is done. The
+	 * binding writes to the error stream of the process, so that stream is the only place a test can
+	 * read a log entry from.
+	 */
+	private String whatIsLoggedWhile(Runnable work) {
+		PrintStream errorStreamBefore = System.err;
+		ByteArrayOutputStream written = new ByteArrayOutputStream();
+		try (PrintStream collecting = new PrintStream(written, true, StandardCharsets.UTF_8)) {
+			System.setErr(collecting);
+			work.run();
+		} finally {
+			System.setErr(errorStreamBefore);
+		}
+		return written.toString(StandardCharsets.UTF_8);
 	}
 
 }
