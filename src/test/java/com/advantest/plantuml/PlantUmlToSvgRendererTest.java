@@ -83,6 +83,7 @@ class PlantUmlToSvgRendererTest {
 		File source = this.tempDir.resolve("empty.puml").toFile();
 		Files.writeString(source.toPath(), "no diagram in here\n");
 
+		// the renderer writes a warning in this case, which no test can read without a logging binding
 		assertNull(this.renderer.plantUmlToSvg(source));
 	}
 

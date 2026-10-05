@@ -12,6 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.GeneratedImage;
@@ -20,6 +23,8 @@ import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.preproc.Defines;
 
 public class PlantUmlToSvgRenderer {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(PlantUmlToSvgRenderer.class);
 	
 	public String plantUmlToSvg(String plantUmlCode) {
 		String value;
@@ -50,7 +55,11 @@ public class PlantUmlToSvgRenderer {
 			
 			if (!list.isEmpty()) {
 				GeneratedImage img = list.get(0);
+				// the interface names every image it hands out a PNG file, whatever format it was drawn in
 				targetFile = img.getPngFile();
+			} else {
+				LOG.warn("No diagram was drawn from file {}. It holds no diagram PlantUML recognises,"
+						+ " i.e. no block between @startuml and @enduml.", plantUmlSourceFile.getAbsolutePath());
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(
