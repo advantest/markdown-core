@@ -16,7 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,7 @@ import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocation;
 import com.advantest.resources.LocalFileSystemResource;
 import com.advantest.resources.LocalFileSystemResourceResolver;
 import com.advantest.resources.Resource;
+import com.advantest.resources.ResourceContentsReader;
 
 /**
  * Tests for {@link MarkdownDocumentReferencedFiles}, i.e. for what is answered about the targets a
@@ -50,7 +53,7 @@ class MarkdownDocumentReferencedFilesTest {
 		Files.writeString(this.tempDir.resolve("diagram.puml"), "@startuml\n@enduml\n");
 		this.document = LocalFileSystemResource.of(documentPath);
 		this.referencedFiles = new MarkdownDocumentReferencedFiles(this.document,
-				new LocalFileSystemResourceResolver(), this.resourcesByTarget);
+				new LocalFileSystemResourceResolver(), this.resourcesByTarget, ResourceContentsReader.FROM_THE_RESOURCE);
 	}
 
 	@Test
@@ -134,15 +137,40 @@ class MarkdownDocumentReferencedFilesTest {
 	}
 
 	@Test
-	void refusesToBeCreatedWithoutItsArguments() {
-		LocalFileSystemResourceResolver resolver = new LocalFileSystemResourceResolver();
+	void readsATargetThroughTheReaderItWasGiven() {
+		List<Resource> asked = new ArrayList<>();
+		MarkdownDocumentReferencedFiles readByAnotherReader = new MarkdownDocumentReferencedFiles(this.document,
+				new LocalFileSystemResourceResolver(), this.resourcesByTarget, resource -> {
+					asked.add(resource);
+					return "from the reader";
+				});
+
+		assertEquals("from the reader", readByAnotherReader.get("diagram.puml"));
+		assertEquals(List.of(this.resourcesByTarget.get("diagram.puml")), asked);
+	}
+
+	@Test
+	void answersNothingForATargetItsReaderCannotRead() {
+		MarkdownDocumentReferencedFiles unreadable = new MarkdownDocumentReferencedFiles(this.document,
+				new LocalFileSystemResourceResolver(), this.resourcesByTarget, resource -> {
+					throw new IOException("cannot be read");
+				});
+
+		assertNull(unreadable.get("diagram.puml"));
+	}
+
+	@Test
+	void refusesToBeCreatedWithoutItsArguments() {		LocalFileSystemResourceResolver resolver = new LocalFileSystemResourceResolver();
+		ResourceContentsReader reader = ResourceContentsReader.FROM_THE_RESOURCE;
 
 		assertThrows(IllegalArgumentException.class,
-				() -> new MarkdownDocumentReferencedFiles(null, resolver, this.resourcesByTarget));
+				() -> new MarkdownDocumentReferencedFiles(null, resolver, this.resourcesByTarget, reader));
 		assertThrows(IllegalArgumentException.class,
-				() -> new MarkdownDocumentReferencedFiles(this.document, null, this.resourcesByTarget));
+				() -> new MarkdownDocumentReferencedFiles(this.document, null, this.resourcesByTarget, reader));
 		assertThrows(IllegalArgumentException.class,
-				() -> new MarkdownDocumentReferencedFiles(this.document, resolver, null));
+				() -> new MarkdownDocumentReferencedFiles(this.document, resolver, null, reader));
+		assertThrows(IllegalArgumentException.class,
+				() -> new MarkdownDocumentReferencedFiles(this.document, resolver, this.resourcesByTarget, null));
 	}
 
 }

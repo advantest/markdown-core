@@ -331,6 +331,14 @@ class MarkdownParserAndHtmlRendererCustomizationTest {
 	}
 
 	@Test
+	void refusesAMissingResourceContentsReader() {
+		assertThrows(IllegalArgumentException.class,
+				() -> new MarkdownParserAndHtmlRenderer(List.of(), new LocalFileSystemResourceResolver(), null));
+		assertThrows(IllegalArgumentException.class,
+				() -> MarkdownParserAndHtmlRenderer.builder().withResourceContentsReader(null));
+	}
+
+	@Test
 	void usesTheResourceResolverItWasBuiltWith() {
 		RelativePathResourceResolver resolver = new LocalFileSystemResourceResolver();
 

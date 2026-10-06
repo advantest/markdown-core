@@ -25,6 +25,7 @@ import com.advantest.flexmark.ext.sourcetracking.SourcePositionAttributesRendere
 import com.advantest.resources.LocalFileSystemResource;
 import com.advantest.resources.LocalFileSystemResourceResolver;
 import com.advantest.resources.RelativePathResourceResolver;
+import com.advantest.resources.ResourceContentsReader;
 import com.advantest.resources.Resource;
 import com.advantest.resources.UnresolvedResource;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
@@ -101,6 +102,8 @@ public class MarkdownParserAndHtmlRenderer {
 
 	private final RelativePathResourceResolver relativePathResourceResolver;
 
+	private final ResourceContentsReader resourceContentsReader;
+
 	private final Parser markdownParser;
 
 	private final HtmlRenderer htmlRenderer;
@@ -141,11 +144,36 @@ public class MarkdownParserAndHtmlRenderer {
 	 */
 	protected MarkdownParserAndHtmlRenderer(List<MarkdownCustomization> customizations,
 			RelativePathResourceResolver relativePathResourceResolver) {
+		this(customizations, relativePathResourceResolver, ResourceContentsReader.FROM_THE_RESOURCE);
+	}
+
+	/**
+	 * Creates a new parser and renderer with the default configuration adapted by the given
+	 * customizations, resolving what a document refers to with the given resolver and reading it with
+	 * the given reader.
+	 * 
+	 * <p>The customizations are applied as described in
+	 * {@link #MarkdownParserAndHtmlRenderer(List)}.</p>
+	 * 
+	 * @param customizations the customizations to be applied, must not be <code>null</code>, but may be empty
+	 * @param relativePathResourceResolver what turns a target written in a document into a
+	 *                                     {@link Resource}, must not be <code>null</code>
+	 * @param resourceContentsReader what answers with the contents of such a resource while a document
+	 *                               is rendered, must not be <code>null</code>
+	 * @throws IllegalArgumentException if the given list is <code>null</code> or contains <code>null</code> entries,
+	 *                                  or if the given resolver or reader is <code>null</code>
+	 */
+	protected MarkdownParserAndHtmlRenderer(List<MarkdownCustomization> customizations,
+			RelativePathResourceResolver relativePathResourceResolver,
+			ResourceContentsReader resourceContentsReader) {
 		if (customizations == null) {
 			throw new IllegalArgumentException("The list of customizations must not be null.");
 		}
 		if (relativePathResourceResolver == null) {
 			throw new IllegalArgumentException("The resource resolver must not be null.");
+		}
+		if (resourceContentsReader == null) {
+			throw new IllegalArgumentException("The resource contents reader must not be null.");
 		}
 
 		MutableDataSet createdOptions = createOptions();
@@ -159,6 +187,7 @@ public class MarkdownParserAndHtmlRenderer {
 
 		this.options = createdOptions;
 		this.relativePathResourceResolver = relativePathResourceResolver;
+		this.resourceContentsReader = resourceContentsReader;
 		this.markdownParser = createMarkdownParser();
 		this.htmlRenderer = createHtmlRenderer();
 	}
@@ -323,7 +352,8 @@ public class MarkdownParserAndHtmlRenderer {
 		document.set(KEY_DOCUMENT_REFERENCED_RESOURCES, referencedResources);
 
 		MarkdownDocumentReferencedFiles referencedFiles = new MarkdownDocumentReferencedFiles(
-				documentResource, this.relativePathResourceResolver, referencedResources);
+				documentResource, this.relativePathResourceResolver, referencedResources,
+				this.resourceContentsReader);
 		document.set(PlantUmlExtension.KEY_DOCUMENT_PATH_TO_FILE_CONTENTS_MAP, referencedFiles);
 		document.set(PlantUmlExtension.KEY_DOCUMENT_PLANTUML_FILE_LOCATIONS, referencedFiles);
 	}
@@ -462,6 +492,8 @@ public class MarkdownParserAndHtmlRenderer {
 		private RelativePathResourceResolver relativePathResourceResolver =
 				new LocalFileSystemResourceResolver();
 
+		private ResourceContentsReader resourceContentsReader = ResourceContentsReader.FROM_THE_RESOURCE;
+
 		private Builder() {
 			// instances are created via MarkdownParserAndHtmlRenderer.builder()
 		}
@@ -540,6 +572,28 @@ public class MarkdownParserAndHtmlRenderer {
 		}
 
 		/**
+		 * Says what answers with the contents of a target a document refers to while the document is
+		 * rendered, overriding the default that asks the resource itself.
+		 * 
+		 * <p>Give one where something knows better than the resource what it contains, e.g. an editor
+		 * holding a diagram its user changed and did not save yet: the rendering then shows what the
+		 * user sees rather than what was saved.</p>
+		 * 
+		 * @param reader what reads a resolved target, must not be <code>null</code>
+		 * @return this builder, for method chaining
+		 * @throws IllegalArgumentException if the given argument is <code>null</code>
+		 */
+		public Builder withResourceContentsReader(ResourceContentsReader reader) {
+			if (reader == null) {
+				throw new IllegalArgumentException("The resource contents reader must not be null.");
+			}
+
+			this.resourceContentsReader = reader;
+
+			return this;
+		}
+
+		/**
 		 * Sets a single flexmark option value, thereby overriding the default value of the given key.
 		 * 
 		 * @param <T> the type of the option's value
@@ -612,7 +666,8 @@ public class MarkdownParserAndHtmlRenderer {
 		 * @return the newly created parser and renderer, never <code>null</code>
 		 */
 		public MarkdownParserAndHtmlRenderer build() {
-			return new MarkdownParserAndHtmlRenderer(this.customizations, this.relativePathResourceResolver);
+			return new MarkdownParserAndHtmlRenderer(this.customizations, this.relativePathResourceResolver,
+					this.resourceContentsReader);
 		}
 
 	}

@@ -19,6 +19,7 @@ import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocation;
 import com.advantest.flexmark.ext.plantuml.PlantUmlFileLocations;
 import com.advantest.resources.RelativePathResourceResolver;
 import com.advantest.resources.Resource;
+import com.advantest.resources.ResourceContentsReader;
 
 /**
  * The text of everything a document refers to, read when it is asked for, and where each of those
@@ -26,8 +27,9 @@ import com.advantest.resources.Resource;
  * 
  * <p>A renderer working on a parsed document asks for a target the way it is written in that
  * document, e.g. <code>diagrams/classes.puml</code>, and is answered with the text behind it. The
- * target is resolved against the resource the document came from and read through that resource, so
- * a document of the local file system, one of a repository and one served over a network are all
+ * target is resolved against the resource the document came from and read through the
+ * {@link ResourceContentsReader} this map was given, which asks that resource unless it knows better,
+ * so a document of the local file system, one of a repository and one served over a network are all
  * answered the same way and none of them is read here.</p>
  * 
  * <p>Nothing is read before it is asked for: a document that is only parsed or validated reads
@@ -55,6 +57,8 @@ final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String>
 
 	private final Map<String, Resource> resourcesByTarget;
 
+	private final ResourceContentsReader reader;
+
 	private final Map<String, String> contentsByTarget = new ConcurrentHashMap<>();
 
 	/**
@@ -64,17 +68,20 @@ final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String>
 	 * @param resolver what turns a target written in that document into a resource, must not be
 	 *                 <code>null</code>
 	 * @param resourcesByTarget where a resolved target is remembered, must not be <code>null</code>
+	 * @param reader what answers with the contents of a resolved target, must not be
+	 *               <code>null</code>
 	 * @throws IllegalArgumentException if one of the arguments is <code>null</code>
 	 */
 	MarkdownDocumentReferencedFiles(Resource documentResource, RelativePathResourceResolver resolver,
-			Map<String, Resource> resourcesByTarget) {
-		if (documentResource == null || resolver == null || resourcesByTarget == null) {
+			Map<String, Resource> resourcesByTarget, ResourceContentsReader reader) {
+		if (documentResource == null || resolver == null || resourcesByTarget == null || reader == null) {
 			throw new IllegalArgumentException("Arguments must not be null.");
 		}
 
 		this.documentResource = documentResource;
 		this.resolver = resolver;
 		this.resourcesByTarget = resourcesByTarget;
+		this.reader = reader;
 	}
 
 	@Override
@@ -91,7 +98,7 @@ final class MarkdownDocumentReferencedFiles extends AbstractMap<String, String>
 		Resource resource = resolvedResourceOf(targetPath);
 
 		try {
-			String contents = resource.readAllContents();
+			String contents = this.reader.readAllContents(resource);
 			this.contentsByTarget.put(targetPath, contents);
 			return contents;
 		} catch (IOException failure) {

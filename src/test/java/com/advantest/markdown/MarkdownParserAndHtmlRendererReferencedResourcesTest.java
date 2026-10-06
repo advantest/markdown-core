@@ -230,6 +230,19 @@ class MarkdownParserAndHtmlRendererReferencedResourcesTest {
 	}
 
 	@Test
+	void aDiagramReadThroughAConfiguredReaderIsRenderedIntoTheHtml() {
+		MarkdownParserAndHtmlRenderer parserAndRenderer = MarkdownParserAndHtmlRenderer.builder()
+				.withResourceContentsReader(resource -> "@startuml\nclass Unsaved\n@enduml\n")
+				.build();
+
+		String html = parserAndRenderer.renderHtml(parse(parserAndRenderer));
+
+		assertTrue(containsSvgImage(html), html);
+		assertTrue(html.contains("Unsaved"), html);
+		assertFalse(html.contains("Foo"), html);
+	}
+
+	@Test
 	void aDiagramOfADocumentOfUnknownOriginIsRenderedAsAMessageNamingTheTargetAsWritten() {
 		MarkdownParserAndHtmlRenderer parserAndRenderer = new MarkdownParserAndHtmlRenderer();
 		Document document = parserAndRenderer.parseMarkdown(MARKDOWN);
