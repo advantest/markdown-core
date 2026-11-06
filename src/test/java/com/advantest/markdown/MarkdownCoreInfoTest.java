@@ -8,7 +8,6 @@ package com.advantest.markdown;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,18 +23,29 @@ import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 class MarkdownCoreInfoTest {
 	
 	@Test
-	void testReadingProperties() {
-		assertNotNull(MarkdownCoreInfo.getVersion());
+	void testReadingTheVersion() {
+		String expected = System.getProperty("expectedVersion");
+		assertNotNull(expected, "The build names the version it expects.");
+		
+		assertEquals(expected, MarkdownCoreInfo.getVersion());
+		assertFalse(MarkdownCoreInfo.getVersion().contains("${"));
+	}
+	
+	@Test
+	void testReadingThePlantUmlVersion() {
 		assertNotNull(MarkdownCoreInfo.getPlantUmlVersion());
-		assertNotNull(MarkdownCoreInfo.getFlexmarkVersion());
-		assertNotNull(MarkdownCoreInfo.getFlexmarkExtensionsVersion());
-		assertFalse(MarkdownCoreInfo.getVersion().isBlank());
 		assertFalse(MarkdownCoreInfo.getPlantUmlVersion().isBlank());
-		assertFalse(MarkdownCoreInfo.getFlexmarkVersion().isBlank());
-		assertFalse(MarkdownCoreInfo.getFlexmarkExtensionsVersion().isBlank());
-		assertNotEquals("${project.version}", MarkdownCoreInfo.getVersion());
-		assertNotEquals("${flexmark-version}", MarkdownCoreInfo.getFlexmarkVersion());
-		assertNotEquals("${flexmark-extensions-version}", MarkdownCoreInfo.getFlexmarkVersion());
+	}
+	
+	@Test
+	void testReadingTheVersionsOfTheFlexmarkLibrariesThatRun() {
+		String expectedFlexmark = System.getProperty("expectedFlexmarkVersion");
+		String expectedExtensions = System.getProperty("expectedFlexmarkExtensionsVersion");
+		assertNotNull(expectedFlexmark, "The build names the flexmark version it expects.");
+		assertNotNull(expectedExtensions, "The build names the flexmark-extensions version it expects.");
+		
+		assertEquals(expectedFlexmark, MarkdownCoreInfo.getFlexmarkVersion());
+		assertEquals(expectedExtensions, MarkdownCoreInfo.getFlexmarkExtensionsVersion());
 	}
 	
 	@Test

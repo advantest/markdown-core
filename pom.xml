@@ -134,6 +134,12 @@
 			<version>${flexmark-extensions-version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.advantest.flexmark</groupId>
+			<artifactId>flexmark-extensions-info</artifactId>
+			<version>${flexmark-extensions-version}</version>
+		</dependency>
+
 		<!--
 			The logging API alone, never a binding. A library that picks where its lines go decides
 			that for the program embedding it, and that is not this library's decision to make.
@@ -182,7 +188,6 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
 			</resource>
 			<resource>
 				<directory>src/version</directory>
@@ -276,6 +281,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.1.2</version>
+				<configuration>
+					<systemPropertyVariables>
+						<expectedVersion>${project.version}</expectedVersion>
+						<expectedFlexmarkVersion>${flexmark-version}</expectedFlexmarkVersion>
+						<expectedFlexmarkExtensionsVersion>${flexmark-extensions-version}</expectedFlexmarkExtensionsVersion>
+					</systemPropertyVariables>
+				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>org.junit.jupiter</groupId>
@@ -290,6 +302,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>3.1.2</version>
+				<configuration>
+					<systemPropertyVariables>
+						<expectedVersion>${project.version}</expectedVersion>
+					</systemPropertyVariables>
+				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>org.junit.jupiter</groupId>

@@ -14,48 +14,51 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.advantest.flexmark.FlexmarkExtensionsInfo;
+import com.vladsch.flexmark.FlexmarkInfo;
+
 import net.sourceforge.plantuml.dot.Graphviz;
 import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 
+/**
+ * Tells which version of this library runs, and which versions and settings of PlantUML and
+ * Graphviz it renders the diagrams with.
+ */
 public class MarkdownCoreInfo {
 	
-	private static String version;
-	private static String plantUmlVersion;
-	private static String flexmarkVersion;
-	private static String flexmarkExtensionsVersion;
+	/**
+	 * The resource the build writes the version of this library into. It is named after the
+	 * coordinates of this library, so that no other library on the class path can hide it.
+	 */
+	static final String VERSION_RESOURCE = "META-INF/com.advantest.markdown/markdown-core/version.properties";
 	
-	private static final String PROPERTY_MARKDOWN_CORE_VERSION = "markdownCoreVersion";
-	private static final String PROPERTY_FLEXMARK_VERSION = "flexmarkVersion";
-	private static final String PROPERTY_FLEXMARK_EXTENSIONS_VERSION = "flexmarkExtensionsVersion";
+	private static final String VERSION_KEY = "version";
 	
-	static {
-		readProperties();
-	}
-	
-	private static void readProperties() {
-		Properties myProperties = new Properties();
-		try {
-			InputStream stream = MarkdownCoreInfo.class.getResourceAsStream("/settings.properties");
-			if (stream == null) {
-				throw new IllegalStateException("The settings of this library are missing:"
-						+ " there is no /settings.properties on the class path.");
-			}
-			myProperties.load(stream);
-		} catch (IOException e) {
-			version = null;
-			plantUmlVersion = null;
-			flexmarkVersion = null;
-			flexmarkExtensionsVersion = null;
-			throw new IllegalStateException(e);
-		}
-		version = myProperties.getProperty(PROPERTY_MARKDOWN_CORE_VERSION);
-		flexmarkVersion = myProperties.getProperty(PROPERTY_FLEXMARK_VERSION);
-		flexmarkExtensionsVersion = myProperties.getProperty(PROPERTY_FLEXMARK_EXTENSIONS_VERSION);
-		
-		plantUmlVersion = net.sourceforge.plantuml.version.Version.versionString();
-	}
+	private static final String VERSION = readVersion(VERSION_RESOURCE);
 	
 	/**
+	 * Reads the version a resource of this library names.
+	 * 
+	 * @return the version, or {@code null} if the resource cannot be read, names no version or was
+	 *         not filled in by the build
+	 */
+	static String readVersion(String resource) {
+		try (InputStream stream = MarkdownCoreInfo.class.getClassLoader().getResourceAsStream(resource)) {
+			if (stream == null) {
+				return null;
+			}
+			Properties properties = new Properties();
+			properties.load(stream);
+			String version = properties.getProperty(VERSION_KEY);
+			if (version == null || version.isBlank() || version.contains("${")) {
+				return null;
+			}
+			return version.strip();
+		} catch (IOException | IllegalArgumentException e) {
+			return null;
+		}
+	}
+		/**
 	 * Asks PlantUML which Graphviz it would use right now. Which one that is can change while
 	 * this library runs, because the executable can be named at any time, so nothing here is
 	 * remembered from an earlier call.
@@ -64,20 +67,29 @@ public class MarkdownCoreInfo {
 		return GraphvizRuntimeEnvironment.getInstance().create(null, "foo;", "svg");
 	}
 	
+	/**
+	 * @return the version of this library, or {@code null} if it cannot be read
+	 */
 	public static String getVersion() {
-		return version;
+		return VERSION;
 	}
 	
 	public static String getPlantUmlVersion() {
-		return plantUmlVersion;
+		return net.sourceforge.plantuml.version.Version.versionString();
 	}
 	
+	/**
+	 * @return the version of the flexmark library that runs
+	 */
 	public static String getFlexmarkVersion() {
-		return flexmarkVersion;
+		return FlexmarkInfo.getVersion();
 	}
 	
+	/**
+	 * @return the version of the flexmark extensions that run
+	 */
 	public static String getFlexmarkExtensionsVersion() {
-		return flexmarkExtensionsVersion;
+		return FlexmarkExtensionsInfo.getVersion();
 	}
 
 	public static String getPlantUmlSecurityProfile() {
