@@ -80,14 +80,19 @@ public class MarkdownCoreInfo {
 	
 	/**
 	 * @return the version of the flexmark library that runs
+	 * @deprecated flexmark tells its version itself: use {@link FlexmarkInfo#getVersion()} instead.
 	 */
+	@Deprecated
 	public static String getFlexmarkVersion() {
 		return FlexmarkInfo.getVersion();
 	}
 	
 	/**
 	 * @return the version of the flexmark extensions that run
+	 * @deprecated the flexmark extensions tell their version themselves: use
+	 *             {@link FlexmarkExtensionsInfo#getVersion()} instead.
 	 */
+	@Deprecated
 	public static String getFlexmarkExtensionsVersion() {
 		return FlexmarkExtensionsInfo.getVersion();
 	}

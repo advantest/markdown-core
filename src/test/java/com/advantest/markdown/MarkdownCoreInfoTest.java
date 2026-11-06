@@ -38,6 +38,7 @@ class MarkdownCoreInfoTest {
 	}
 	
 	@Test
+	@SuppressWarnings("deprecation")
 	void testReadingTheVersionsOfTheFlexmarkLibrariesThatRun() {
 		String expectedFlexmark = System.getProperty("expectedFlexmarkVersion");
 		String expectedExtensions = System.getProperty("expectedFlexmarkExtensionsVersion");
