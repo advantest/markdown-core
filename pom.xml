@@ -176,10 +176,18 @@
 
 	<build>
 		
+		<!-- The version of this library goes into a resource named after its coordinates, so that
+		     it cannot be mistaken for the resource of another library on the same class path.
+		     Filtering writes it into the class folder as well, so the IDEs see it, too. -->
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/version</directory>
+				<filtering>true</filtering>
+				<targetPath>META-INF/${project.groupId}/${project.artifactId}</targetPath>
 			</resource>
 		</resources>
 		
