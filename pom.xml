@@ -284,6 +284,28 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+
+			<!-- Runs the tests named *IT on the JAR the build made rather than on the class folder. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.1.2</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>5.9.1</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			
 			<!-- Measures how much of the code the tests reach. The measurement runs with every
 			     build and does not judge the result: how the value has to develop is not decided
