@@ -25,7 +25,6 @@
 	<properties>
 		<flexmark-version>0.65.3-SNAPSHOT</flexmark-version>
 		<flexmark-extensions-version>1.1.0-SNAPSHOT</flexmark-extensions-version>
-		<plantuml-version>1.2026.3</plantuml-version>
 		<java-version>21</java-version>
 		<junit-version>5.9.2</junit-version>
 		<slf4j-version>2.0.18</slf4j-version>
@@ -48,39 +47,8 @@
 			<url>https://maven.pkg.github.com/advantest/flexmark-extensions</url>
 		</repository>
 	</repositories>
-	
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<!-- Sets desired PlantUML version for all transitive dependencies,
-					 might override the PlantUML version from flexmark-extensions.
-					 PlantUML's EPL edition, not its GPL edition (net.sourceforge.plantuml:plantuml),
-					 which is incompatible with the BSD 3-Clause License. Consumers may override the
-					 version, but only of plantuml-epl; naming the GPL edition as well puts both into
-					 a distribution. -->
-				<groupId>net.sourceforge.plantuml</groupId>
-				<artifactId>plantuml-epl</artifactId>
-				<version>${plantuml-version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<dependencies>
-	
-		<!-- Explicitly declare the PlantUML lib dependency in order to re-use this version also in other projects, even in Gradle projects -->
-		<dependency>
-			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml-epl</artifactId>
-			<exclusions>
-				<!-- The JAR bundles ELK, EMF and JLaTeXMath with its fonts, yet its POM declares ELK
-					 and JLaTeXMath as runtime dependencies, which would put a second copy beside it.
-					 flexmark-ext-plantuml excludes them only on its own path to PlantUML. -->
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
