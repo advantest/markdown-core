@@ -351,25 +351,26 @@
 				</executions>
 			</plugin>
 			
-			<!-- also download the PlantUML source code for the selected version
+			<!-- also download the source code of the PlantUML version resolved
 			     in order to simplify debugging -->
 			<plugin>
-				<groupId>com.googlecode.maven-download-plugin</groupId>
-				<artifactId>download-maven-plugin</artifactId>
-				<version>1.13.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.8.1</version>
 				<executions>
 
 					<execution>
 						<id>copy-plantuml-sources</id>
 						<phase>process-resources</phase>
 						<goals>
-							<goal>wget</goal>
+							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<url>https://github.com/plantuml/plantuml/releases/download/v${plantuml-version}/plantuml-epl-${plantuml-version}-sources.jar</url>
-							<unpack>false</unpack>
+							<classifier>sources</classifier>
+							<includeGroupIds>net.sourceforge.plantuml</includeGroupIds>
+							<includeArtifactIds>plantuml-epl</includeArtifactIds>
 							<outputDirectory>${project.basedir}/lib</outputDirectory>
-							<overwrite>false</overwrite>
+							<overWriteReleases>false</overWriteReleases>
 						</configuration>
 					</execution>
 
