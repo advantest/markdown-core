@@ -1,14 +1,18 @@
 <!-- see https://shields.io/badges -->
 
 ![GitHub License](https://img.shields.io/github/license/advantest/markdown-core)
-[![Java CI with Maven](https://github.com/advantest/markdown-core/actions/workflows/ci-docker.yml/badge.svg?branch=main)](https://github.com/advantest/markdown-core/actions/workflows/ci-docker.yml)
+[![Java CI with Maven][ci-badge]][ci-workflow]
+
+[ci-badge]: https://github.com/advantest/markdown-core/actions/workflows/ci-docker.yml/badge.svg?branch=main
+[ci-workflow]: https://github.com/advantest/markdown-core/actions/workflows/ci-docker.yml
 
 # markdown-core
 
 *markdown-core* is a tiny library offering a certain version, set of extensions, and configuration of
 [flexmark](https://github.com/advantest/flexmark-java), a Markdown parser and HTML generator,
 and a certain version of [PlantUML](https://github.com/plantuml/plantuml).
-The rationale for markdown-core is using the same combination of libraries and configuration in multiple other tools and thus, producing the same rendering results.
+The rationale for markdown-core is using the same combination of libraries and configuration in multiple other tools
+and thus, producing the same rendering results.
 
 
 # PlantUML edition
