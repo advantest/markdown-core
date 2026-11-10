@@ -386,6 +386,37 @@
 				</executions>
 			</plugin>
 
+			<!-- Every Java file carries the header of src/license/header.txt. The build fails where
+			     a header is missing or differs from it in anything but its year or year range,
+			     which is left to the authors and reviewers. "mvn spotless:apply" adds a missing
+			     header with the current year, to be reviewed before committing. -->
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<lineEndings>PRESERVE</lineEndings>
+					<java>
+						<includes>
+							<include>src/*/java/**/*.java</include>
+						</includes>
+						<licenseHeader>
+							<file>${project.basedir}/src/license/header.txt</file>
+						</licenseHeader>
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<id>check-license-headers</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
