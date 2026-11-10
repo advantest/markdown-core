@@ -25,9 +25,11 @@ too. The EPL's copyleft covers PlantUML's own files only, so markdown-core keeps
 
 What follows for an application using markdown-core:
 
-* Do not add the GPL edition. To use another PlantUML version, override the version of `plantuml-epl`.
-* The PlantUML JAR bundles ELK, EMF, JLaTeXMath and Guava. markdown-core therefore excludes PlantUML's transitive
-  dependencies.
+* Do not add the GPL edition. markdown-core takes PlantUML and its version from flexmark-ext-plantuml. To use another
+  PlantUML version, override the version of `plantuml-epl` and of Guava, which flexmark-ext-plantuml pins to the one
+  PlantUML bundles.
+* The PlantUML JAR bundles ELK, EMF, JLaTeXMath and Guava. Maven resolves them a second time from PlantUML's POM, so
+  that licence reports and SBOMs list them; a distribution needs only the copies inside the PlantUML JAR.
 * The EPL edition renders no Ditaa, JCCKit or Sudoku diagrams and writes no WebP images.
 
 
