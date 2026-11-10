@@ -1,0 +1,6 @@
+# Line endings are normalised to LF in the repository and on checkout, on every platform.
+#
+# This overrides each developer's core.autocrlf setting, which is the point: the rule belongs to
+# the repository, not to the machine.
+
+* text=auto eol=lf
