@@ -11,6 +11,22 @@ and a certain version of [PlantUML](https://github.com/plantuml/plantuml).
 The rationale for markdown-core is using the same combination of libraries and configuration in multiple other tools and thus, producing the same rendering results.
 
 
+# PlantUML edition
+
+markdown-core renders diagrams with PlantUML's EPL edition, `net.sourceforge.plantuml:plantuml-epl`, published under
+the Eclipse Public License. PlantUML's GPL edition, `net.sourceforge.plantuml:plantuml`, is not an option: the GPL is
+incompatible with the BSD 3-Clause License and would put its terms on everything distributed together with it.
+The EPL fits as well because ELK, the Eclipse Layout Kernel that PlantUML can lay out diagrams with, is under the EPL
+too. The EPL's copyleft covers PlantUML's own files only, so markdown-core keeps its licence.
+
+What follows for an application using markdown-core:
+
+* Do not add the GPL edition. To use another PlantUML version, override the version of `plantuml-epl`.
+* The PlantUML JAR bundles ELK, EMF, JLaTeXMath and Guava. markdown-core therefore excludes PlantUML's transitive
+  dependencies.
+* The EPL edition renders no Ditaa, JCCKit or Sudoku diagrams and writes no WebP images.
+
+
 # License
 
 This work is made available under the terms of the BSD 3-Clause License.
