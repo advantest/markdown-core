@@ -1,0 +1,4 @@
+/*
+ * Copyright © $YEAR Advantest Europe GmbH
+ * SPDX-License-Identifier: BSD-3-Clause
+ */

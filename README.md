@@ -13,8 +13,8 @@ The rationale for markdown-core is using the same combination of libraries and c
 
 # License
 
-This work is made available under the terms of the BSD 2-Clause "Simplified" License.
-The BSD accompanies this distribution: [LICENSE.txt](LICENSE.txt).
+This work is made available under the terms of the BSD 3-Clause License.
+The licence accompanies this distribution: [LICENSE](LICENSE).
 
 # Copyright
 
