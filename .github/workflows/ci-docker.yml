@@ -6,10 +6,18 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# Every branch is built and tested. main and the release/x.y.z branches deploy their -SNAPSHOT versions to
+# GitHub Packages, and a tag x.y.z on main publishes the release x.y.z; .github/scripts/check-versions.sh
+# says which version may be deployed from where.
+
 name: Java CI with Maven and Docker
 
 on:
   push:
+    branches:
+    - '**'
+    tags:
+    - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
     branches:
     - main
@@ -18,6 +26,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Two pushes to one branch must not deploy at the same time, and a deployment is never cancelled halfway.
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       contents: read
       packages: write
@@ -31,6 +43,10 @@ jobs:
     steps:
     - name: Check out
       uses: actions/checkout@v6
+      with:
+        # The check compares the version with those of the other branches and looks for the commit on main.
+        fetch-depth: 0
+        filter: blob:none
 
     # work-around since using the token with the setup-java action seems not to work
     - name: Set up settings.xml for Maven and GitHub packages access
@@ -58,6 +74,10 @@ jobs:
         </settings>
         EOF
 
+    - name: Check the version
+      id: check
+      run: MAVEN_ARGS="-s $HOME/.m2/settings.xml" bash .github/scripts/check-versions.sh
+
     - name: Build with Maven
       run: mvn -B clean verify -U -s $HOME/.m2/settings.xml
 
@@ -70,7 +90,7 @@ jobs:
         if-no-files-found: warn
 
     - name: Deploy to GitHub Maven Packages
-      if: github.ref_name == 'main'  && github.repository == 'advantest/markdown-core'
+      if: steps.check.outputs.deploy == 'true' && github.event_name != 'pull_request' && github.repository == 'advantest/markdown-core'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: mvn -B -Pdeploy-github -DskipTests deploy -s $HOME/.m2/settings.xml
