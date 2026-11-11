@@ -42,18 +42,6 @@ class MarkdownCoreInfoTest {
 	}
 	
 	@Test
-	@SuppressWarnings("deprecation")
-	void testReadingTheVersionsOfTheFlexmarkLibrariesThatRun() {
-		String expectedFlexmark = System.getProperty("expectedFlexmarkVersion");
-		String expectedExtensions = System.getProperty("expectedFlexmarkExtensionsVersion");
-		assertNotNull(expectedFlexmark, "The build names the flexmark version it expects.");
-		assertNotNull(expectedExtensions, "The build names the flexmark-extensions version it expects.");
-		
-		assertEquals(expectedFlexmark, MarkdownCoreInfo.getFlexmarkVersion());
-		assertEquals(expectedExtensions, MarkdownCoreInfo.getFlexmarkExtensionsVersion());
-	}
-	
-	@Test
 	void testReadingSecurityProfile() {
 		assertEquals("LEGACY", MarkdownCoreInfo.getPlantUmlSecurityProfile());
 	}

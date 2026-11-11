@@ -12,9 +12,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.advantest.flexmark.FlexmarkExtensionsInfo;
-import com.vladsch.flexmark.FlexmarkInfo;
-
 import net.sourceforge.plantuml.dot.Graphviz;
 import net.sourceforge.plantuml.dot.GraphvizRuntimeEnvironment;
 
@@ -76,25 +73,6 @@ public class MarkdownCoreInfo {
 		return net.sourceforge.plantuml.version.Version.versionString();
 	}
 	
-	/**
-	 * @return the version of the flexmark library that runs
-	 * @deprecated flexmark tells its version itself: use {@link FlexmarkInfo#getVersion()} instead.
-	 */
-	@Deprecated
-	public static String getFlexmarkVersion() {
-		return FlexmarkInfo.getVersion();
-	}
-	
-	/**
-	 * @return the version of the flexmark extensions that run
-	 * @deprecated the flexmark extensions tell their version themselves: use
-	 *             {@link FlexmarkExtensionsInfo#getVersion()} instead.
-	 */
-	@Deprecated
-	public static String getFlexmarkExtensionsVersion() {
-		return FlexmarkExtensionsInfo.getVersion();
-	}
-
 	public static String getPlantUmlSecurityProfile() {
 		return net.sourceforge.plantuml.security.SecurityUtils.getSecurityProfile().name();
 	}
