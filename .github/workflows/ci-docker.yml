@@ -33,6 +33,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # .github/maven-settings.xml hands the token to Maven.
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     container:
       # Use pre-built Docker image from https://github.com/advantest/fluentmark/blob/develop/.github/workflows/build-docker-img-for-plantuml.yml
       # The image provides Graphviz, Pandoc, JDK, Maven in the required versions
@@ -48,38 +51,12 @@ jobs:
         fetch-depth: 0
         filter: blob:none
 
-    # work-around since using the token with the setup-java action seems not to work
-    - name: Set up settings.xml for Maven and GitHub packages access
-      run: |
-        mkdir -p $HOME/.m2
-        cat > $HOME/.m2/settings.xml <<EOF
-        <settings>
-          <servers>
-            <server>
-              <id>github-packages-flexmark</id>
-              <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
-            </server>
-            <server>
-              <id>github-packages-flexmark-extensions</id>
-              <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
-            </server>
-            <server>
-              <id>github</id>
-              <username>__token__</username>
-              <password>${{ secrets.GITHUB_TOKEN }}</password>
-            </server>
-          </servers>
-        </settings>
-        EOF
-
     - name: Check the version
       id: check
-      run: MAVEN_ARGS="-s $HOME/.m2/settings.xml" bash .github/scripts/check-versions.sh
+      run: MAVEN_ARGS="-s .github/maven-settings.xml" bash .github/scripts/check-versions.sh
 
     - name: Build with Maven
-      run: mvn -B clean verify -U -s $HOME/.m2/settings.xml
+      run: mvn -B clean verify -U -s .github/maven-settings.xml
 
     - name: Keep the code coverage report
       if: always()
@@ -91,9 +68,7 @@ jobs:
 
     - name: Deploy to GitHub Maven Packages
       if: steps.check.outputs.deploy == 'true' && github.event_name != 'pull_request' && github.repository == 'advantest/markdown-core'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn -B -Pdeploy-github -DskipTests deploy -s $HOME/.m2/settings.xml
+      run: mvn -B -Pdeploy-github -DskipTests deploy -s .github/maven-settings.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
