@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven settings for the CI: the token of the workflow run reads the libraries this project depends on from GitHub Packages
+     and deploys it there.
+     The workflow passes GITHUB_TOKEN as an environment variable. -->
+<settings>
+	<servers>
+		<server>
+			<id>github-packages-flexmark</id>
+			<username>${env.GITHUB_ACTOR}</username>
+			<password>${env.GITHUB_TOKEN}</password>
+		</server>
+		<server>
+			<id>github-packages-flexmark-extensions</id>
+			<username>${env.GITHUB_ACTOR}</username>
+			<password>${env.GITHUB_TOKEN}</password>
+		</server>
+		<server>
+			<id>github</id>
+			<username>${env.GITHUB_ACTOR}</username>
+			<password>${env.GITHUB_TOKEN}</password>
+		</server>
+	</servers>
+</settings>
