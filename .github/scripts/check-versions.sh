@@ -1,30 +1,32 @@
 #!/usr/bin/env bash
 #
 # Decides whether a build of the commit checked out may deploy to GitHub Packages, and fails the build if
-# its version breaks the rules of the branches:
+# its version breaks the rules of the branches. A version is either work in progress, x.y.z-SNAPSHOT, or a
+# dated release, x.y.z-yyyyMMdd-HHmm, set in a version commit of its own:
 #
-#   main            collects the changes for the next release and deploys its -SNAPSHOT version.
-#   release/x.y.z   prepares a later release at the same time and deploys x.y.z-SNAPSHOT.
-#   tag x.y.z       publishes the release x.y.z from a commit on main.
+#   main            collects the changes for the next release and deploys its versions.
+#   release/x.y.z   prepares a later release at the same time and deploys its versions of x.y.z.
 #
-# A  On release/x.y.z the version is x.y.z-SNAPSHOT, or the build fails.
-# B  A push to main or release/* deploys a -SNAPSHOT version only. Any other version is built and tested,
-#    but not deployed; D publishes it.
-# C  If main or a release branch not yet merged into main deploys a snapshot of the x.y.z of another of
-#    these branches, the build warns, but does not fail.
-# D  A tag x.y.z deploys only if it equals the version, the version has no -SNAPSHOT and the tagged commit
-#    is on main, or the build fails.
-# E  A tag deploys only if none of the dependencies, the transitive ones included, and none of the parents
-#    is a -SNAPSHOT version, or the build fails.
+# A final release is a dated release that is kept; it is never built again. A tag only marks it and starts
+# no build.
 #
-# It reads GITHUB_REF_TYPE and GITHUB_REF_NAME as GitHub Actions sets them, needs the branches of the
-# remote REMOTE (default: origin) fetched with their history, and writes deploy=true or deploy=false to
-# GITHUB_OUTPUT.
+# A  The version is x.y.z-SNAPSHOT or x.y.z-yyyyMMdd-HHmm, on release/x.y.z with that x.y.z, or the build
+#    fails.
+# B  A push to main or release/* deploys its version. Deploying a dated release a second time fails, as
+#    GitHub Packages refuses it.
+# C  If main or a release branch not yet merged into main carries the x.y.z of another of these branches,
+#    the build warns, but does not fail.
+# D  A merge commit on main carrying the dated release of the commit it merges is a final release: it is
+#    built and tested, but not deployed, and it does not warn.
+# E  A dated release deploys only if none of the dependencies, the transitive ones included, and none of
+#    the parents is a -SNAPSHOT version, or the build fails.
+#
+# It reads GITHUB_REF_NAME as GitHub Actions sets it, needs the branches of the remote REMOTE (default:
+# origin) fetched with their history, and writes deploy=true or deploy=false to GITHUB_OUTPUT.
 
 set -euo pipefail
 
 remote="${REMOTE:-origin}"
-ref_type="${GITHUB_REF_TYPE:?GITHUB_REF_TYPE is not set}"
 ref_name="${GITHUB_REF_NAME:?GITHUB_REF_NAME is not set}"
 
 fail() {
@@ -43,38 +45,58 @@ version_of() {
 		-Dexpression=project.version -DforceStdout
 }
 
+# The x.y.z of a version.
 release_of() {
-	echo "${1%-SNAPSHOT}"
+	echo "${1%%-*}"
 }
 
 is_merged_into_main() {
 	git merge-base --is-ancestor "$1" "$remote/main"
 }
 
+# Whether HEAD is a merge commit and one of the commits it merges carries the version.
+merges_version() {
+	local parent
+	for parent in $(git rev-list --parents -n 1 HEAD | cut -d ' ' -f 3-); do
+		if [ "$(version_of "$parent")" = "$1" ]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
 version="$(version_of)"
-echo "Version: $version, $ref_type: $ref_name"
+echo "Version: $version, branch: $ref_name"
 deploy=false
 
-if [ "$ref_type" = tag ]; then
-	[ "$ref_name" = "$version" ] || fail "The tag $ref_name does not name the version $version."
-	[[ "$version" != *-SNAPSHOT ]] || fail "The tag $ref_name names a -SNAPSHOT version; a release has none."
-	is_merged_into_main HEAD || fail "The tag $ref_name is not on main; releases are published from main."
-	mvn -B -q org.apache.maven.plugins:maven-enforcer-plugin:3.5.0:enforce -Drules=requireReleaseDeps ||
-		fail "The release $version depends on a -SNAPSHOT version."
+if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT$ ]]; then
+	dated=false
+elif [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-[0-9]{8}-[0-9]{4}$ ]]; then
+	dated=true
+else
+	fail "The version $version is neither x.y.z-SNAPSHOT nor a dated release x.y.z-yyyyMMdd-HHmm."
+fi
+
+if [[ "$ref_name" == release/* ]] && [ "$(release_of "$version")" != "${ref_name#release/}" ]; then
+	fail "The branch $ref_name carries $version, a version of another release."
+fi
+
+if [ "$ref_name" = main ] || [[ "$ref_name" == release/* ]]; then
 	deploy=true
-elif [ "$ref_name" = main ] || [[ "$ref_name" == release/* ]]; then
-	if [[ "$ref_name" == release/* ]]; then
-		expected="${ref_name#release/}-SNAPSHOT"
-		[ "$version" = "$expected" ] || fail "The branch $ref_name carries $version instead of $expected."
+
+	if [ "$ref_name" = main ] && [ "$dated" = true ] && merges_version "$version"; then
+		echo "$version is the final release merged into main; it has been deployed already."
+		deploy=false
 	fi
 
-	if [[ "$version" == *-SNAPSHOT ]]; then
-		deploy=true
-	else
-		echo "::notice::$version is no -SNAPSHOT version, so it is not deployed; a tag $version publishes it."
+	if [ "$deploy" = true ] && [ "$dated" = true ]; then
+		mvn -B -q org.apache.maven.plugins:maven-enforcer-plugin:3.5.0:enforce -Drules=requireReleaseDeps ||
+			fail "The dated release $version depends on a -SNAPSHOT version."
 	fi
+fi
 
-	# The branches that deploy a snapshot of their own: main and the release branches not merged into it.
+if [ "$deploy" = true ]; then
+	# The branches that deploy versions of their own: main and the release branches not merged into it.
 	branches=(main)
 	while read -r branch; do
 		if ! is_merged_into_main "$remote/$branch"; then
@@ -82,7 +104,7 @@ elif [ "$ref_name" = main ] || [[ "$ref_name" == release/* ]]; then
 		fi
 	done < <(git for-each-ref --format='%(refname:lstrip=3)' "refs/remotes/$remote/release/")
 
-	if [ "$deploy" = true ] && [[ " ${branches[*]} " == *" $ref_name "* ]]; then
+	if [[ " ${branches[*]} " == *" $ref_name "* ]]; then
 		for branch in "${branches[@]}"; do
 			if [ "$branch" != "$ref_name" ]; then
 				other="$(version_of "$remote/$branch")"

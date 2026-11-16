@@ -6,9 +6,10 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-# Every branch is built and tested. main and the release/x.y.z branches deploy their -SNAPSHOT versions to
-# GitHub Packages, and a tag x.y.z on main publishes the release x.y.z; .github/scripts/check-versions.sh
-# says which version may be deployed from where.
+# Every branch is built and tested. main and the release/x.y.z branches deploy their versions to GitHub Packages,
+# the -SNAPSHOT versions as well as the dated releases x.y.z-yyyyMMdd-HHmm. A final release is a dated release
+# that is kept: tagging it publishes nothing. .github/scripts/check-versions.sh says which version may be
+# deployed from where.
 
 name: Java CI with Maven and Docker
 
@@ -16,8 +17,6 @@ on:
   push:
     branches:
     - '**'
-    tags:
-    - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
     branches:
     - main
